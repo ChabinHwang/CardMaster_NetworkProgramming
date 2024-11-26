@@ -1,4 +1,4 @@
-package main_signup_login;
+package cardmaster.main_signup_login;
 
 import java.util.HashMap;
 import java.util.Map;

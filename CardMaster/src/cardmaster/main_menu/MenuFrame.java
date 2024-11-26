@@ -1,3 +1,5 @@
+package cardmaster.main_menu;
+
 import javax.swing.*;
 import java.awt.*;
 

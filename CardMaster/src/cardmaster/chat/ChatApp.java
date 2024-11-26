@@ -1,3 +1,5 @@
+package cardmaster.chat;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -7,7 +9,7 @@ public class ChatApp {
     public static void main(String[] args) {
         // JFrame 생성
         JFrame frame = new JFrame("Chat Application");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // 닫기 버튼 누르면 창만 닫기
         frame.setSize(800, 600);
         frame.setLayout(new BorderLayout());
 
@@ -31,10 +33,19 @@ public class ChatApp {
         JButton sendButton = new JButton("Send");
         sendButton.setFont(new Font("휴먼둥근헤드라인", Font.BOLD, 14)); // 글씨체 설정
 
+        // JButton (닫기 버튼)
+        JButton closeButton = new JButton("닫기");
+        closeButton.setFont(new Font("휴먼둥근헤드라인", Font.BOLD, 14)); // 글씨체 설정
+
         // 하단 입력 패널 생성
         JPanel inputPanel = new JPanel(new BorderLayout());
         inputPanel.add(inputField, BorderLayout.CENTER);
-        inputPanel.add(sendButton, BorderLayout.EAST);
+
+        // 버튼 패널
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.add(sendButton);
+        buttonPanel.add(closeButton);
+        inputPanel.add(buttonPanel, BorderLayout.EAST);
 
         // 버튼 클릭 이벤트 처리
         sendButton.addActionListener(new ActionListener() {
@@ -55,6 +66,9 @@ public class ChatApp {
                 sendButton.doClick(); // 버튼 클릭과 동일한 동작
             }
         });
+
+        // 닫기 버튼 클릭 이벤트 처리
+        closeButton.addActionListener(e -> frame.dispose()); // 창 닫기
 
         // 컴포넌트 추가
         frame.add(scrollPane, BorderLayout.CENTER); // 채팅창 (스크롤 포함)
