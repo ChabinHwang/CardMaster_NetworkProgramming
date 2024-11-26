@@ -1,7 +1,12 @@
+package cardmaster.blackjack_game;
+
+import cardmaster.chat.ChatApp;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import cardmaster.chat.ChatApp;
 
 public class Blackjack {
 
@@ -20,7 +25,7 @@ public class Blackjack {
 
         // JFrame 생성
         JFrame frame = new JFrame("Blackjack");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // 창 닫기 설정
         frame.setSize(800, 600);
         frame.setLayout(new BorderLayout());
 
@@ -157,7 +162,17 @@ public class Blackjack {
             // 결과 출력
             balanceLabel.setText("잔액: " + balance[0]);
             JOptionPane.showMessageDialog(frame, result, "결과", JOptionPane.INFORMATION_MESSAGE);
-            gameActive[0] = false;
+
+            // OK 버튼 클릭 시 창 닫기
+            frame.dispose();
+        });
+
+        // "채팅하기" 버튼 이벤트
+        chatButton.addActionListener(e -> {
+            // ChatApp 실행
+            SwingUtilities.invokeLater(() -> {
+                ChatApp.main(new String[]{}); // ChatApp 실행
+            });
         });
 
         frame.setVisible(true);
@@ -230,4 +245,3 @@ public class Blackjack {
         return card;
     }
 }
-
