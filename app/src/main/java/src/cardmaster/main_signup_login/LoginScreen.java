@@ -5,6 +5,7 @@ import src.cardmaster.main_menu.MenuFrame;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 
 public class LoginScreen extends JFrame {
@@ -53,12 +54,16 @@ public class LoginScreen extends JFrame {
             String id = idField.getText();
             String pw = new String(pwField.getPassword());
 
-            if (UserDatabase.validateUser(id, pw)) {
-                JOptionPane.showMessageDialog(this, "로그인 성공!");
-                dispose();
-                new MenuFrame(id, 100); // MenuFrame에 사용자 이름과 초기 포인트 전달
-            } else {
-                JOptionPane.showMessageDialog(this, "Invalid ID or Password", "Login Error", JOptionPane.ERROR_MESSAGE);
+            try {
+                if (UserDatabase.validateUser(id, pw)) {
+                    JOptionPane.showMessageDialog(this, "로그인 성공!");
+                    dispose();
+                    new MenuFrame(id, 100); // MenuFrame에 사용자 이름과 초기 포인트 전달
+                } else {
+                    JOptionPane.showMessageDialog(this, "Invalid ID or Password", "Login Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
             }
         });
 

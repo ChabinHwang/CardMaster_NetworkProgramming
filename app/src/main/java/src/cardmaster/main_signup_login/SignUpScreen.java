@@ -2,6 +2,7 @@ package src.cardmaster.main_signup_login;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 public class SignUpScreen extends JFrame {
     private static final int FRAME_WIDTH = 400;
@@ -63,12 +64,16 @@ public class SignUpScreen extends JFrame {
                 return;
             }
 
-            if (UserDatabase.addUser(id, pw)) {
-                JOptionPane.showMessageDialog(this, "회원가입 성공!");
-                dispose();
-                new LoginScreen();
-            } else {
-                JOptionPane.showMessageDialog(this, "이미 존재하는 ID입니다.", "Error", JOptionPane.ERROR_MESSAGE);
+            try {
+                if (UserDatabase.addUser(id, pw)) {
+                    JOptionPane.showMessageDialog(this, "회원가입 성공!");
+                    dispose();
+                    new LoginScreen();
+                } else {
+                    JOptionPane.showMessageDialog(this, "이미 존재하는 ID입니다.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
             }
         });
 
