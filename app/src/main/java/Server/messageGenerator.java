@@ -9,11 +9,19 @@ public class messageGenerator {
     JSONObject data;
     public messageGenerator(){}
 
-    public JSONObject loginSuccess(gameList games){
+    public JSONObject loginSuccess(gameList games,User user){
         response = new JSONObject();
         data = new JSONObject();
         response.put("response", "loginSuccess");
-        data.put("numberOfGame",games.numberOfGames());
+        for(int i=0; i<games.numberOfGames(); i++){
+            int tmp = 0;
+            for(int j=0; j<games.getGameInstance(i).numberOfRoom(); j++){
+                tmp += games.getGameInstance(i).getRoomInstance(j).numberOfPlayer();
+            }
+            data.put("game"+i, tmp);
+        }
+        data.put("numberOfGame",games.numberOfGames())
+                .put("money",user.getMoney());
         response.put("data", data);
         return response;
     }
