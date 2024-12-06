@@ -48,7 +48,7 @@ class PokerHandEvaluator {
             return new PokerHand("One Pair", sortedCards);
         }
 
-        return new PokerHand("High Card", sortedCards);
+        return new PokerHand("High Server.Card", sortedCards);
     }
 
     private boolean checkFlush(List<Card> cards) {
@@ -124,7 +124,7 @@ class PokerHand implements Comparable<PokerHand> {
     public int compareTo(PokerHand other) {
         // 핸드 랭킹에 따른 비교 (텍사스 홀덤 핸드 순위)
         Map<String, Integer> handRankings = Map.of(
-                "High Card", 1,
+                "High Server.Card", 1,
                 "One Pair", 2,
                 "Two Pair", 3,
                 "Three of a Kind", 4,

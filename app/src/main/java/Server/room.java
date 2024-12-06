@@ -1,19 +1,22 @@
 package Server;
+
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class room extends Thread{
     private String roomName;
-    private List<client> players = new ArrayList<>();
-    private Map<client, Boolean> activePlayers = new HashMap<>();
-    private client leader;
-    private dealerI dealer;
+    private volatile List<client> players = new CopyOnWriteArrayList<>();
+    private volatile Map<String, Boolean> activePlayers = new ConcurrentHashMap<>();
+    private volatile client leader;
+    private volatile dealerI dealer;
     private int maxPlayer = 8;
-    private boolean gameInProgress = false;
+    private AtomicBoolean gameInProgress = new AtomicBoolean(false);
     private messageGenerator mg;
     private int gameId;
 
@@ -30,31 +33,24 @@ public class room extends Thread{
     public void join(client client){
         if(numberOfPlayer() == 0) {
             leader = client;
-            if(gameId==0){
-                dealer = new blackJackDealer(this, mg);
-            }else if(gameId==1){
-                dealer = new casinoWarDealer(this, mg);
-            }else{
-                dealer = new baccaratDealer(this, mg);
-            }
         }
         broadcast(mg.updateRoomState(this).toString());
         if(numberOfPlayer() > maxPlayer){
             client.sendMessage(mg.errorMessage("enter Failed").toString());
         }
-        if(gameInProgress){
+        if(gameInProgress.get()){
             players.add(client);
-            activePlayers.put(client, false);
+            activePlayers.put(client.getName(), false);
         }else{
             players.add(client);
-            activePlayers.put(client, true);
+            activePlayers.put(client.getName(), true);
         }
-        client.sendMessage(mg.updatePlayerState(activePlayers.get(client)).toString());
+        client.sendMessage(mg.updatePlayerState(activePlayers.get(client.getName())).toString());
     }
 
     public void leave(client player){
         players.remove(player);
-        activePlayers.remove(player);
+        activePlayers.remove(player.getName());
     }
 
     public void broadcast(String message){
@@ -68,20 +64,33 @@ public class room extends Thread{
     }
 
     public void run(){
-        broadcast(""+numberOfPlayer());
-        gameInProgress = true;
-        dealer.play(players, activePlayers, numberOfActivePlayer());
-        gameInProgress = false;
+        while(true){
+            if(gameId==0){
+                dealer = new blackJackDealer(this, mg);
+            }else if(gameId==1){
+                dealer = new casinoWarDealer(this, mg);
+            }else{
+                dealer = new baccaratDealer(this, mg);
+            }
+            gameInProgress.set(true);
+            dealer.play(players, activePlayers, numberOfActivePlayer());
+            gameInProgress.set(false);
+            while(!gameInProgress.get());
+        }
     }
 
     public boolean isLeader(client player){
         return leader == player;
     }
 
+    public void changeRoomState(boolean flag){
+        gameInProgress.set(flag);
+    }
+
     private int numberOfActivePlayer(){
         int tmp = 0;
         for(client player : players){
-            if(activePlayers.get(player))tmp++;
+            if(activePlayers.get(player.getName()))tmp++;
         }
         return tmp;
     }
@@ -104,27 +113,27 @@ public class room extends Thread{
             JSONObject data = requestRoot.getJSONObject("data");
             switch(request){
                 case "bet":
-                    if(dealer.checkPlayerTurn()!=player){
+                    if(!Objects.equals(dealer.checkPlayerTurn().getName(), player.getName())){
                         player.sendMessage(mg.errorMessage("not your turn").toString());
                         return;
                     }
                     int amount = data.optInt("amount", 0);
                     String bet = data.getString("bet");
-                    dealer.handleBet(player, amount, bet);
+                    dealer.handleBet(amount, bet);
                     break;
                 case "hitOrStand":
-                    if(dealer.checkPlayerTurn()!=player){
+                    if(!Objects.equals(dealer.checkPlayerTurn().getName(), player.getName())){
                         player.sendMessage(mg.errorMessage("not your turn").toString());
                         return;
                     }
                     String hitOrStand = data.getString("hitOrStand");
-                    dealer.playRounds(player, hitOrStand);
+                    dealer.playRounds(hitOrStand);
                     break;
                 case "call":
                     int additionalBet = data.optInt("amount", 0);
                     String gotoWar = data.getString("gotoWar");
                     casinoWarDealer casinodealer = (casinoWarDealer)dealer;
-                    casinodealer.resolveWar(player, gotoWar, additionalBet);
+                    casinodealer.resolveWar(gotoWar, additionalBet);
                     break;
                 case "leave":
                     leave(player);

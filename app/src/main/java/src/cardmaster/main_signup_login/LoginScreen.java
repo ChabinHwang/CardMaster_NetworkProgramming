@@ -1,6 +1,7 @@
 package src.cardmaster.main_signup_login;
 
 
+import org.json.JSONObject;
 import src.cardmaster.main_menu.MenuFrame;
 
 import javax.swing.*;
@@ -55,12 +56,13 @@ public class LoginScreen extends JFrame {
             String pw = new String(pwField.getPassword());
 
             try {
-                if (UserDatabase.validateUser(id, pw)) {
+                JSONObject jsonObject = UserDatabase.validateUser(id, pw);
+                if (jsonObject.has("error")) {
+                    JOptionPane.showMessageDialog(this, "Invalid ID or Password", "Login Error", JOptionPane.ERROR_MESSAGE);
+                } else {
                     JOptionPane.showMessageDialog(this, "로그인 성공!");
                     dispose();
-                    new MenuFrame(id, 100); // MenuFrame에 사용자 이름과 초기 포인트 전달
-                } else {
-                    JOptionPane.showMessageDialog(this, "Invalid ID or Password", "Login Error", JOptionPane.ERROR_MESSAGE);
+                    new MenuFrame(id, jsonObject.getJSONObject("data").getInt("money")); // MenuFrame에 사용자 이름과 초기 포인트 전달
                 }
             } catch (IOException ex) {
                 throw new RuntimeException(ex);

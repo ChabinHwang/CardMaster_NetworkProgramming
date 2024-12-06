@@ -36,7 +36,6 @@ public class client extends Thread{
     }
 
     public void run(){
-        System.out.println("client started");
         try{
             String data;
             while((data=br.readLine())!=null && !terminationFlag){
@@ -44,7 +43,7 @@ public class client extends Thread{
                 System.out.println(requestRoot);
                 String request = requestRoot.getString("request");
                 JSONObject requestData = requestRoot.getJSONObject("data");
-                if(request.equals("login")){
+                if(request.equals("Server.login")){
                     String id = requestData.getString("id");
                     String pwd = requestData.getString("pwd");
                     this.user = manager.UserExist(id, pwd);
@@ -52,7 +51,7 @@ public class client extends Thread{
                         sendMessage(mg.errorMessage("loginfail").toString());
                     }else{
                         login = true;
-                        sendMessage(mg.loginSuccess(gameList.getInstance()).toString());
+                        sendMessage(mg.loginSuccess(gameList.getInstance(),user).toString());
                     }
                 }else if(request.equals("register")){
                     String id = requestData.getString("id");
@@ -75,7 +74,12 @@ public class client extends Thread{
                     this.room = game.enterRoom(roomId, this);
                 }else if(request.equals("start")){
                     if(room.isLeader(this)){
-                        room.start();
+                        if((room.getState()==State.NEW)){
+                            room.start();
+                        }
+                        else{
+                            room.changeRoomState(true);
+                        }
                     }else{
                         sendMessage(mg.errorMessage("you are not leader").toString());
                     }
