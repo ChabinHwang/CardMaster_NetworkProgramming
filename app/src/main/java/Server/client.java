@@ -51,7 +51,7 @@ public class client extends Thread{
                         sendMessage(mg.errorMessage("loginfail").toString());
                     }else{
                         login = true;
-                        sendMessage(mg.loginSuccess(gameList.getInstance(),user).toString());
+                        sendMessage(mg.loginSuccess(gameList.getInstance()).toString());
                     }
                 }else if(request.equals("register")){
                     String id = requestData.getString("id");

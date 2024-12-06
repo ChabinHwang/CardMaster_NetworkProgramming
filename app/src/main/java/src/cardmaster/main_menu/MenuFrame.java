@@ -15,7 +15,7 @@ public class MenuFrame extends JFrame {
         add(welcomePanel, BorderLayout.NORTH);
 
         // 메뉴 패널 추가
-        MenuPanel MenuPanel = new MenuPanel();
+        MenuPanel MenuPanel = new MenuPanel(userName, points);
         add(MenuPanel, BorderLayout.CENTER);
 
         setVisible(true);

@@ -10,8 +10,19 @@ import java.util.Collections;
 public class Blackjack {
 
     public static void main(String[] args) {
-        // 초기 잔액
-        int[] balance = {100}; // 플레이어 잔액
+        // 초기 잔액을 인자로 받음
+        int initialBalance = 100; // 기본 잔액
+        String id;// 유저 id
+        if (args.length > 0) {
+            try {
+                initialBalance = Integer.parseInt(args[0]);
+                id=args[1];
+            } catch (NumberFormatException e) {
+                System.err.println("잘못된 잔액 입력값입니다. 기본 잔액(100)으로 시작합니다.");
+            }
+        }
+
+        int[] balance = {initialBalance}; // 플레이어 잔액
         int[] betAmount = {0}; // 배팅 금액
         boolean[] gameActive = {true}; // 게임 상태
 

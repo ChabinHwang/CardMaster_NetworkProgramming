@@ -20,6 +20,9 @@ public class GameCard extends JPanel {
         add(titleLabel, BorderLayout.NORTH);
 
         // 게임 설명
+        /**
+         * gameTitle이름을 가진 게임을 진행하는 플레이어가 몇명인지 가져와야함
+         */
         JLabel descriptionLabel = new JLabel("4 명 플레이중", SwingConstants.CENTER);
         descriptionLabel.setFont(new Font("휴먼둥근헤드라인", Font.PLAIN, 14));
         descriptionLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 50, 0));
