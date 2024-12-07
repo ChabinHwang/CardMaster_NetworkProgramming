@@ -138,6 +138,10 @@ public class room extends Thread{
                 case "leave":
                     leave(player);
                     break;
+                case "message":
+                    for(client client : players){
+                        client.sendMessage(mg.sendMessage(data.getString("message")).toString());
+                    }
                 default:
                     player.sendMessage(mg.errorMessage("unknown meesage type").toString());
             }

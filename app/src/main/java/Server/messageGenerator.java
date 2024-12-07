@@ -9,7 +9,7 @@ public class messageGenerator {
     JSONObject data;
     public messageGenerator(){}
 
-    public JSONObject loginSuccess(gameList games,User user){
+    public JSONObject loginSuccess(gameList games, User user){
         response = new JSONObject();
         data = new JSONObject();
         response.put("response", "loginSuccess");
@@ -22,6 +22,14 @@ public class messageGenerator {
         }
         data.put("numberOfGame",games.numberOfGames())
                 .put("money",user.getMoney());
+        response.put("data", data);
+        return response;
+    }
+    public JSONObject sendMessage(String message){
+        response = new JSONObject();
+        data = new JSONObject();
+        response.put("response", "error");
+        data.put("message", message);
         response.put("data", data);
         return response;
     }
