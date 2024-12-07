@@ -1,12 +1,27 @@
 package src.cardmaster.chat;
 
+import org.json.JSONObject;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static src.cardmaster.JSONMessageTransfer.JSONSandAndReceive;
+import static src.cardmaster.JSONMessageTransfer.MakeJSON;
+import static src.cardmaster.main_signup_login.Main.br;
+import static src.cardmaster.main_signup_login.Main.pw;
 
 public class ChatApp {
+
+
     public static void main(String[] args) {
+
+        String id=args[0];
+//        String id="chabin"; 테스트용
         // JFrame 생성
         JFrame frame = new JFrame("Chat Application");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // 닫기 버튼 누르면 창만 닫기
@@ -47,14 +62,54 @@ public class ChatApp {
         buttonPanel.add(closeButton);
         inputPanel.add(buttonPanel, BorderLayout.EAST);
 
+        // ExecutorService를 활용한 별도 스레드 생성
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+        // 서버로부터 메시지 읽는 스레드
+        executorService.submit(() -> {
+            try {
+                StringBuilder responseBuilder = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    responseBuilder.append(line);
+                    if (responseBuilder.toString().trim().endsWith("}")) {
+                        break; // JSON 끝임을 확인하고 루프 종료
+                    }
+                }
+                JSONObject response = new JSONObject(responseBuilder.toString());
+                String otherid, otherMessage;
+                if (response.get("response").equals("othersMessage")){
+                    JSONObject othersMessage = response.getJSONObject("data");
+                    otherid=othersMessage.get("id").toString();
+                    otherMessage=othersMessage.get("message").toString();
+                    SwingUtilities.invokeLater(() -> chatArea.append(otherid+": "+otherMessage+"\n"));
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } finally {
+                executorService.shutdown(); // 작업 완료 후 ExecutorService 종료
+            }
+        });
         // 버튼 클릭 이벤트 처리
         sendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String message = inputField.getText();
                 if (!message.isEmpty()) {
-                    chatArea.append("You: " + message + "\n"); // 메시지 표시
-                    inputField.setText(""); // 입력 필드 초기화
+                    // 채팅창에 메시지 표시
+                    chatArea.append(id+": " + message + "\n");
+
+                    // 입력 필드 초기화
+                    inputField.setText("");
+                    //JSON객체 만들어서, 서버에 전송 후 응답 반환(반환 내용은 OK임으로, 메세지에 표시하지는 않음
+                    try {
+                        JSONObject jsonObject =JSONSandAndReceive(MakeJSON("sendMessage",
+                                "id",id,"message", message));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                    chatArea.append(id+": " + message + "\n"); // 메시지 표시
+                    inputField.setText("");
                 }
             }
         });

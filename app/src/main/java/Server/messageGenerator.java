@@ -1,5 +1,6 @@
 package Server;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.List;
@@ -82,13 +83,40 @@ public class messageGenerator {
         response.put("data", data);
         return response;
     }
-    public JSONObject blackJackCard(List<Card> playerHands, List<Card> dealerCards){
-        response = new JSONObject();
-        data = new JSONObject();
+
+    public JSONObject blackJackCard(List<Card> playerHands, List<Card> dealerCards) {
+        JSONObject response = new JSONObject();
+        JSONObject data = new JSONObject();
+
+        // Convert playerHands to JSON array
+        JSONArray playerCardArray = new JSONArray();
+        for (Card card : playerHands) {
+            JSONObject cardJson = new JSONObject();
+            cardJson.put("suit", card.getSuit());
+            cardJson.put("rank", card.getRank());
+            playerCardArray.put(cardJson);
+        }
+
+        // Convert dealer's first card to JSON
+        if (dealerCards != null && !dealerCards.isEmpty()) {
+            Card dealerFirstCard = dealerCards.get(0); // Assuming getFirst() is get(0)
+            JSONObject dealerCardJson = new JSONObject();
+            dealerCardJson.put("suit", dealerFirstCard.getSuit());
+            dealerCardJson.put("rank", dealerFirstCard.getRank());
+
+            // Add to data object
+            data.put("dealerCard", dealerCardJson);
+        } else {
+            data.put("dealerCard", JSONObject.NULL); // Handle empty dealerCards case
+        }
+
+        // Add player cards to data
+        data.put("playerCard", playerCardArray);
+
+        // Finalize response
         response.put("response", "blackJackCard");
-        data.put("playerCard", playerHands)
-                .put("dealerCard", dealerCards.getFirst());
         response.put("data", data);
+
         return response;
     }
     public JSONObject updateHand(List<Card> playerHands){

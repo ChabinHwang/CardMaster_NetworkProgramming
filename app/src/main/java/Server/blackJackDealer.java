@@ -11,12 +11,17 @@ public class blackJackDealer implements dealerI{
     private messageGenerator mg;
     private Deck deck = new Deck();
     private List<Card> dealerCards = new CopyOnWriteArrayList<>();
+    // playerHands: 플레이어별 카드 목록. (플레이어 이름을 키로 가지는 맵)
     private volatile Map<String, List<Card>> playerHands = new ConcurrentHashMap<String, List<Card>>();
+    // 플레이어 현재 배팅
     private volatile Map<String, Integer> currentBets = new ConcurrentHashMap<>();
+    // 현재 턴에서 플레이어가 행동했는지 여부를 나타내는 플래그.
     private AtomicBoolean playerAct = new AtomicBoolean(false);
     private volatile client playerTurn;
     private ScheduledExecutorService timerExecutor;
+    // roundTime: 한 턴의 제한 시간(기본값: 30초).
     private volatile int roundTime = 30;
+    //counter: 현재 턴의 대기 상태를 제어하는 래치.
     private CountDownLatch counter;
 
     public blackJackDealer(room room, messageGenerator mg) {
@@ -37,6 +42,10 @@ public class blackJackDealer implements dealerI{
         timerExecutor.shutdown();
     }
 
+    /**
+     * 딜러카드와 유저 카드를 배분하고, 이를 클라이언트에 발신
+     * @param players 플레이어
+     */
     private void dealInitialCards(List<client> players){
         dealerCards.add(deck.drawCard());
         dealerCards.add(deck.drawCard());
@@ -44,10 +53,11 @@ public class blackJackDealer implements dealerI{
             List<Card> hand = new ArrayList<>();
             hand.add(deck.drawCard());
             hand.add(deck.drawCard());
-            playerHands.put(player.getName(), hand);
+            playerHands.put(player.getID(), hand);
             player.sendMessage(mg.blackJackCard(hand, dealerCards).toString());
         }
     }
+    
     private int getHandValue(List<Card> hand) {
         int value = 0;
         int aceCount = 0;
@@ -118,10 +128,10 @@ public class blackJackDealer implements dealerI{
             if(!activePlayers.get(player.getName())) continue;
             playerTurn = player;
             this.counter = new CountDownLatch(1);
-            ScheduledFuture<?> future = timerExecutor.scheduleAtFixedRate(()->{
+            ScheduledFuture<?> future = timerExecutor.scheduleAtFixedRate(()->{//비동기로 진행
                 if(roundTime > 0 && !playerAct.get()){
                     room.broadcastTimer(roundTime);
-                    roundTime--;
+                    roundTime-=2;
                 }else{
                     if(roundTime<=0) handleTimeouts(player, activePlayers);
                     roundTime = 30;
@@ -129,9 +139,9 @@ public class blackJackDealer implements dealerI{
                     room.broadcastTimer(roundTime);
                     counter.countDown();
                 }
-            },0,1, TimeUnit.SECONDS);
+            },0,2, TimeUnit.SECONDS);
             try{
-                counter.await();
+                counter.await();//비동기로 진행되는 위 코드에서 countDown 내리면 이게 진행
                 future.cancel(true);
             }catch(InterruptedException e){
                 e.printStackTrace();

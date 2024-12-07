@@ -22,4 +22,33 @@ public class JSONMessageTransfer {
         return new JSONObject(responseBuilder.toString());
     }
 
+    /**
+     *
+     * @param header
+     * @param data 첫 번쨰 인자가 Key, 두번째 인자가 Value
+     * @return
+     */
+    public static JSONObject MakeJSON(String header, String... data) {
+        // JSON 객체 생성
+        JSONObject jsonObject = new JSONObject();
+
+        // header 추가
+        jsonObject.put("request", header);
+
+        // data를 처리하여 추가
+        JSONObject dataObject = new JSONObject();
+        if (data.length % 2 != 0) {
+            throw new IllegalArgumentException("data 인자는 키와 값이 짝수로 들어와야 합니다.");
+        }
+
+        for (int i = 0; i < data.length; i += 2) {
+            String key = data[i];
+            String value = data[i + 1];
+            dataObject.put(key, value);
+        }
+
+        jsonObject.put("data", dataObject);
+        return jsonObject;
+    }
+
 }

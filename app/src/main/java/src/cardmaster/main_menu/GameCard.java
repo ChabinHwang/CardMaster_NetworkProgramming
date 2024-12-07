@@ -12,16 +12,16 @@ public class GameCard extends JPanel {
         setLayout(new BorderLayout());
         setBackground(new Color(255, 255, 255)); // 카드 배경색 설정
         setPreferredSize(new Dimension(200, 300));
-
+        // 게임 타이틀이 들어오면, 이를 바탕으로
         // 게임 제목
         JLabel titleLabel = new JLabel(gameTitle, SwingConstants.CENTER);
         titleLabel.setFont(new Font("휴먼둥근헤드라인", Font.BOLD, 18));
         titleLabel.setBorder(BorderFactory.createEmptyBorder(100, 0, 10, 0));
         add(titleLabel, BorderLayout.NORTH);
 
-        // 게임 설명
+        // 게임 타이틀을 통해 해당 게임에 인원이 얼마나 남아 있는지 확인
         /**
-         * gameTitle이름을 가진 게임을 진행하는 플레이어가 몇명인지 가져와야함
+         * gameTitle 이름을 가진 게임을 진행하는 플레이어가 몇명인지 가져와야함
          */
         JLabel descriptionLabel = new JLabel("4 명 플레이중", SwingConstants.CENTER);
         descriptionLabel.setFont(new Font("휴먼둥근헤드라인", Font.PLAIN, 14));
