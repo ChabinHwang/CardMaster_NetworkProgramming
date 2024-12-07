@@ -25,7 +25,7 @@ public class game {
         return list.get(idx).numberOfPlayer();
     }
 
-    public synchronized room getRoomInstance(int idx){
+    public synchronized room getRoomInstance(int idx) {
         return list.get(idx);
     }
 

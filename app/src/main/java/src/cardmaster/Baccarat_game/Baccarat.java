@@ -1,5 +1,6 @@
 package src.cardmaster.Baccarat_game;
 
+import org.json.JSONObject;
 import src.cardmaster.chat.ChatApp;
 
 import javax.swing.*;
@@ -9,20 +10,17 @@ import java.util.Collections;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static src.cardmaster.JSONMessageTransfer.MakeJSON;
+
 public class Baccarat {
 
     public static void main(String[] args) {
         // 초기 잔액을 인자로 받음
         int initialBalance = 100; // 기본 잔액
         String id;// 유저 id
-        if (args.length > 0) {
-            try {
-                initialBalance = Integer.parseInt(args[0]);
-                id=args[1];
-            } catch (NumberFormatException e) {
-                System.err.println("잘못된 잔액 입력값입니다. 기본 잔액(100)으로 시작합니다.");
-            }
-        }
+        initialBalance = Integer.parseInt(args[0]);
+        id=args[1];
+        JSONObject jsonObject = MakeJSON("startGame","roomNmae",String.valueOf(0),"id",id);
 
         int[] balance = {initialBalance}; // 플레이어 잔액
         int[] betAmount = {0}; // 배팅 금액
