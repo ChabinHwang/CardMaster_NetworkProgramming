@@ -53,8 +53,8 @@ public class blackJackDealer implements dealerI{
             List<Card> hand = new ArrayList<>();
             hand.add(deck.drawCard());
             hand.add(deck.drawCard());
-            playerHands.put(player.getID(), hand);
-            player.sendMessage(mg.blackJackCard(hand, dealerCards).toString());
+            playerHands.put(player.getUserInstance().getId(), hand);
+            player.sendMessage(mg.sendDealerPlayerCard(hand, dealerCards, room.getGameId()).toString());
         }
     }
     
@@ -62,9 +62,13 @@ public class blackJackDealer implements dealerI{
         int value = 0;
         int aceCount = 0;
         for (Card card : hand) {
-            value += card.getValue();
-            if (card.getRank() == 1) {
+            if(card.getValue()>=10){
+                value += 10;
+            }else if(card.getValue()==1){
+                value += 11;
                 aceCount++;
+            }else{
+                value += card.getValue();
             }
         }
         while (value > 21 && aceCount > 0) {
@@ -81,7 +85,7 @@ public class blackJackDealer implements dealerI{
         }
         playerTurn.getUserInstance().betMoney(amount);
         currentBets.put(playerTurn.getName(), amount);
-        room.broadcastGameUpdate(playerTurn.getName(), amount);
+        room.broadcastGameUpdate(playerTurn.getUserInstance().getId(), amount);
         playerAct.set(true);
     }
 
@@ -100,7 +104,7 @@ public class blackJackDealer implements dealerI{
             int handValue = getHandValue(playerHands.get(playerTurn.getName()));
             if(handValue>21){
                 result = "bust";
-                playerTurn.sendMessage(mg.gameResult(0, result, playerHands.get(playerTurn.getName()), dealerCards).toString());
+                playerTurn.sendMessage(mg.gameResult(0, result, playerHands.get(playerTurn.getName()), dealerCards, room.getGameId()).toString());
                 return;
             }
             playerValue = getHandValue(playerHands.get(playerTurn.getName()));
@@ -120,23 +124,24 @@ public class blackJackDealer implements dealerI{
             result = "lose";
         }
         playerAct.set(true);
-        playerTurn.sendMessage(mg.gameResult(playerTurn.getUserInstance().getMoney(), result, playerHands.get(playerTurn.getName()), dealerCards).toString());
+        playerTurn.sendMessage(mg.gameResult(playerTurn.getUserInstance().getMoney(), result, playerHands.get(playerTurn.getName()), dealerCards, room.getGameId()).toString());
     }
 
     private void waitForAct(List<client> players, Map<String, Boolean> activePlayers){
         for(client player : players){
             if(!activePlayers.get(player.getName())) continue;
             playerTurn = player;
+            player.sendMessage(mg.errorMessage("your turn!").toString());
             this.counter = new CountDownLatch(1);
             ScheduledFuture<?> future = timerExecutor.scheduleAtFixedRate(()->{//비동기로 진행
                 if(roundTime > 0 && !playerAct.get()){
-                    room.broadcastTimer(roundTime);
+                    room.broadcastTimer(roundTime, room.getGameId());
                     roundTime-=2;
                 }else{
                     if(roundTime<=0) handleTimeouts(player, activePlayers);
                     roundTime = 30;
                     playerAct.set(false);
-                    room.broadcastTimer(roundTime);
+                    room.broadcastTimer(roundTime, room.getGameId());
                     counter.countDown();
                 }
             },0,2, TimeUnit.SECONDS);

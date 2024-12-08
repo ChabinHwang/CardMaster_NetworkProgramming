@@ -1,36 +1,42 @@
 package src.cardmaster.main_signup_login;
 
 // HomeScreen.java
+import src.cardmaster.main_signup_login.handler.BtSignUpHandler;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 
-public class HomeScreen extends JFrame {
+public class HomeScreen extends JPanel {
+
     private static final int FRAME_WIDTH = 800;
     private static final int FRAME_HEIGHT = 600;
+    public JPanel mainPanel;
+    public JLabel titleLabel;
+    public JPanel buttonPanel;
+    public JButton loginButton;
+    public JButton signupButton;
 
     public HomeScreen() {
-        setTitle("CardMaster");
         setSize(FRAME_WIDTH, FRAME_HEIGHT);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
 
         // Main panel
-        JPanel mainPanel = new JPanel();
+        mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
         // Title
-        JLabel titleLabel = new JLabel("CardMaster");
+        titleLabel = new JLabel("CardMaster");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 48));
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Button panel
-        JPanel buttonPanel = new JPanel();
+        buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         buttonPanel.setBackground(Color.LIGHT_GRAY);
 
-        JButton loginButton = new JButton("Login");
-        JButton signupButton = new JButton("SignUp");
+        loginButton = new JButton("Login");
+        signupButton = new JButton("SignUp");
 
         loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         signupButton.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -51,18 +57,8 @@ public class HomeScreen extends JFrame {
         mainPanel.add(Box.createVerticalStrut(50));
         mainPanel.add(buttonPanel);
 
-        // Event handlers
-        loginButton.addActionListener(e -> {
-            dispose();
-            new LoginScreen();
-        });
-
-        signupButton.addActionListener(e -> {
-            dispose();
-            new SignUpScreen();
-        });
-
         add(mainPanel);
         setVisible(true);
     }
+
 }

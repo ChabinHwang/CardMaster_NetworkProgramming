@@ -21,8 +21,9 @@ public class messageGenerator {
             }
             data.put("game"+i, tmp);
         }
-        data.put("numberOfGame",games.numberOfGames())
-                .put("money",user.getMoney());
+        data.put("numberOfGames",games.numberOfGames())
+                .put("money",user.getMoney())
+                        .put("name", user.getId());
         response.put("data", data);
         return response;
     }
@@ -47,6 +48,16 @@ public class messageGenerator {
             data.put("roomName", new JSONObject()
                     .put("Server.room"+i, game.getRoomName(i)));
         }
+        response.put("data", data);
+        return response;
+    }
+    public JSONObject sendRoomState(room room, int gameId){
+        response = new JSONObject();
+        data = new JSONObject();
+        response.put("response", "roomState");
+        data.put("numberOfPlayer", room.numberOfPlayer())
+                .put("roomName", room.getRoomName())
+                        .put("gameId", gameId);
         response.put("data", data);
         return response;
     }
@@ -85,14 +96,14 @@ public class messageGenerator {
     public JSONObject gameUpdate(String playerTurn, int currentBet){
         response = new JSONObject();
         data = new JSONObject();
-        response.put("response", "blackJackCard");
+        response.put("response", "gameUpdate");
         data.put("playerTurn", playerTurn);
         data.put("currentBet", currentBet);
         response.put("data", data);
         return response;
     }
 
-    public JSONObject blackJackCard(List<Card> playerHands, List<Card> dealerCards) {
+    public JSONObject sendDealerPlayerCard(List<Card> playerHands, List<Card> dealerCards, int gameId) {
         JSONObject response = new JSONObject();
         JSONObject data = new JSONObject();
 
@@ -120,9 +131,10 @@ public class messageGenerator {
 
         // Add player cards to data
         data.put("playerCard", playerCardArray);
+        data.put("gameId", gameId);
 
         // Finalize response
-        response.put("response", "blackJackCard");
+        response.put("response", "dealerPlayerCards");
         response.put("data", data);
 
         return response;
@@ -131,25 +143,54 @@ public class messageGenerator {
         response = new JSONObject();
         data = new JSONObject();
         response.put("response", "updateHand");
-        data.put("playerCard", playerHands);
+        JSONArray playerCardArray = new JSONArray();
+        for (Card card : playerHands) {
+            JSONObject cardJson = new JSONObject();
+            cardJson.put("suit", card.getSuit());
+            cardJson.put("rank", card.getRank());
+            playerCardArray.put(cardJson);
+        }
+        data.put("playerCard", playerCardArray);
         response.put("data", data);
         return response;
     }
-    public JSONObject casinoWarCard(List<Card> playerHand){
+    public JSONObject casinoWarCard(List<Card> playerHands){
         response = new JSONObject();
         data = new JSONObject();
         response.put("response", "casinoWarCard");
-        data.put("playerCard", playerHand);
+        JSONArray playerCardArray = new JSONArray();
+        for (Card card : playerHands) {
+            JSONObject cardJson = new JSONObject();
+            cardJson.put("suit", card.getSuit());
+            cardJson.put("rank", card.getRank());
+            playerCardArray.put(cardJson);
+        }
+        data.put("playerCard", playerCardArray);
         response.put("data", data);
         return response;
     }
-    public JSONObject gameResult(int amount, String result, List<Card> playerCards, List<Card> dealerCards){
+    public JSONObject gameResult(int amount, String result, List<Card> playerHands, List<Card> dealerCards, int gameId){
         response = new JSONObject();
         data = new JSONObject();
         response.put("response", "gameResult");
+        JSONArray playerCardArray = new JSONArray();
+        for (Card card : playerHands) {
+            JSONObject cardJson = new JSONObject();
+            cardJson.put("suit", card.getSuit());
+            cardJson.put("rank", card.getRank());
+            playerCardArray.put(cardJson);
+        }
+        data.put("playerCard", playerCardArray);
+        JSONArray dealerCardArray = new JSONArray();
+        for (Card card : dealerCards) {
+            JSONObject cardJson = new JSONObject();
+            cardJson.put("suit", card.getSuit());
+            cardJson.put("rank", card.getRank());
+            dealerCardArray.put(cardJson);
+        }
+        data.put("playerCard", playerCardArray);
+        data.put("gameId", gameId);
         data.put("result", result)
-                .put("playerCards", playerCards)
-                .put("dealerCards", dealerCards)
                 .put("prize", amount);
         response.put("data", data);
         return response;

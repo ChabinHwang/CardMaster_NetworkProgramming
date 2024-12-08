@@ -10,17 +10,36 @@ import java.util.Collections;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static src.cardmaster.JSONMessageTransfer.MakeJSON;
 
-public class Baccarat {
+public class Baccarat extends JPanel {
 
-    public static void main(String[] args) {
-        // 초기 잔액을 인자로 받음
-        int initialBalance = 100; // 기본 잔액
-        String id;// 유저 id
-        initialBalance = Integer.parseInt(args[0]);
-        id=args[1];
-        JSONObject jsonObject = MakeJSON("startGame","roomNmae",String.valueOf(0),"id",id);
+    public JPanel frame;
+    public JPanel mainPanel;
+    public JPanel dealerPanel;
+    public JPanel spacerPanel;
+    public JLabel baccaratLabel;
+    public JPanel playerPanel;
+    public JLabel timerLabel;
+    public JPanel buttonPanel;
+    public JPanel betPanel;
+    public JTextField betField;
+    public JButton betButton;
+    public JButton chatButton;
+    public JButton startButton;
+
+    // 베팅 옵션 버튼
+    public JRadioButton playerBet;
+    public JRadioButton bankerBet;
+    public JRadioButton tieBet;
+    public ButtonGroup betGroup;
+    public JPanel balancePanel;
+    public JLabel balanceLabel;
+
+    int initialBalance = 100; // 기본 잔액
+    String id = "";// 유저 id
+
+    public Baccarat(){
+
 
         int[] balance = {initialBalance}; // 플레이어 잔액
         int[] betAmount = {0}; // 배팅 금액
@@ -31,58 +50,62 @@ public class Baccarat {
         ArrayList<String> deck = createDeck();
 
         // JFrame 생성
-        JFrame frame = new JFrame("Baccarat");
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // 창 닫기 설정
+        frame = new JPanel();
         frame.setSize(800, 600);
         frame.setLayout(new BorderLayout());
 
         // 메인 패널
-        JPanel mainPanel = new JPanel();
+        mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBackground(Color.GREEN); // 초록색 배경 유지
         frame.add(mainPanel, BorderLayout.CENTER);
 
         // 딜러 패널 (상단)
-        JPanel dealerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        dealerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         dealerPanel.setBackground(Color.GREEN);
         mainPanel.add(dealerPanel);
 
         // 딜러와 플레이어 사이의 간격 패널
-        JPanel spacerPanel = new JPanel(new BorderLayout());
+        spacerPanel = new JPanel(new BorderLayout());
         spacerPanel.setPreferredSize(new Dimension(800, 100)); // 높이 100
         spacerPanel.setBackground(Color.GREEN); // 초록색 배경
 
         // BACCARAT 텍스트 라벨 추가
-        JLabel baccaratLabel = new JLabel("BACCARAT", SwingConstants.CENTER);
+        baccaratLabel = new JLabel("BACCARAT", SwingConstants.CENTER);
         baccaratLabel.setFont(new Font("휴먼둥근헤드라인", Font.BOLD, 36));
         baccaratLabel.setForeground(Color.GRAY);
         spacerPanel.add(baccaratLabel, BorderLayout.CENTER);
 
         mainPanel.add(spacerPanel);
 
+        timerLabel = new JLabel("30", SwingConstants.CENTER);
+        timerLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        timerLabel.setForeground(Color.RED);
+        timerLabel.setPreferredSize(new Dimension(100, 50));
+
         // 플레이어 패널 (하단)
-        JPanel playerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        playerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         playerPanel.setBackground(Color.GREEN);
         mainPanel.add(playerPanel);
 
         // 버튼 패널
-        JPanel buttonPanel = new JPanel(new BorderLayout());
+        buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.setBackground(Color.WHITE); // 버튼 영역 하얀색 배경
 
         // 배팅 패널 (왼쪽 정렬)
-        JPanel betPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        betPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         betPanel.setBackground(Color.WHITE); // 배팅 영역 하얀색 배경
 
-        JTextField betField = new JTextField(5);
-        JButton betButton = new JButton("배팅하기");
-        JButton playButton = new JButton("게임 시작");
-        JButton chatButton = new JButton("채팅하기");
+        betField = new JTextField(5);
+        betButton = new JButton("배팅하기");
+        chatButton = new JButton("채팅하기");
+        startButton = new JButton("시작하기");
 
         // 베팅 옵션 버튼
-        JRadioButton playerBet = new JRadioButton("Player");
-        JRadioButton bankerBet = new JRadioButton("Banker");
-        JRadioButton tieBet = new JRadioButton("Tie");
-        ButtonGroup betGroup = new ButtonGroup();
+        playerBet = new JRadioButton("Player");
+        bankerBet = new JRadioButton("Banker");
+        tieBet = new JRadioButton("Tie");
+        betGroup = new ButtonGroup();
         betGroup.add(playerBet);
         betGroup.add(bankerBet);
         betGroup.add(tieBet);
@@ -95,15 +118,16 @@ public class Baccarat {
         betPanel.add(bankerBet);
         betPanel.add(tieBet);
         betPanel.add(chatButton); // 채팅하기 버튼 추가
-        betPanel.add(playButton); // 게임 시작 버튼 추가
+        betPanel.add(startButton);
+//        betPanel.add(startButton); // 게임 시작 버튼 추가
 
         // 버튼 패널에 배팅 패널 추가
         buttonPanel.add(betPanel, BorderLayout.CENTER);
 
         // 잔액 표시 (오른쪽 정렬)
-        JPanel balancePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        balancePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         balancePanel.setBackground(Color.WHITE); // 잔액 영역 하얀색 배경
-        JLabel balanceLabel = new JLabel("잔액: " + balance[0]);
+        balanceLabel = new JLabel("잔액: " + balance[0]);
         balanceLabel.setFont(new Font("휴먼둥근헤드라인", Font.PLAIN, 16));
         balanceLabel.setForeground(Color.BLACK);
         balancePanel.add(balanceLabel);
@@ -113,92 +137,100 @@ public class Baccarat {
 
         // 버튼 패널을 프레임 하단에 추가
         frame.add(buttonPanel, BorderLayout.SOUTH);
+        frame.add(timerLabel, BorderLayout.NORTH);
+        add(frame);
+        setVisible(true);
+    }
 
-        // 배팅 버튼 동작
-        betButton.addActionListener(e -> {
-            try {
-                int bet = Integer.parseInt(betField.getText());
-                if (bet > balance[0]) {
-                    JOptionPane.showMessageDialog(frame, "잔액이 부족합니다.", "오류", JOptionPane.ERROR_MESSAGE);
-                } else if (bet <= 0) {
-                    JOptionPane.showMessageDialog(frame, "유효한 금액을 입력하세요.", "오류", JOptionPane.ERROR_MESSAGE);
-                } else if (!playerBet.isSelected() && !bankerBet.isSelected() && !tieBet.isSelected()) {
-                    JOptionPane.showMessageDialog(frame, "베팅할 대상을 선택하세요.", "오류", JOptionPane.ERROR_MESSAGE);
-                } else {
-                    betAmount[0] = bet;
-                    balance[0] -= bet;
-                    balanceLabel.setText("잔액: " + balance[0]);
+    public void init(int money, String id) {
+        // 초기 잔액을 인자로 받음
 
-                    if (playerBet.isSelected()) selectedBet[0] = "Player";
-                    if (bankerBet.isSelected()) selectedBet[0] = "Banker";
-                    if (tieBet.isSelected()) selectedBet[0] = "Tie";
 
-                    JOptionPane.showMessageDialog(frame, selectedBet[0] + "에 " + bet + "포인트를 배팅했습니다.", "베팅 완료", JOptionPane.INFORMATION_MESSAGE);
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "숫자를 입력하세요.", "오류", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-
-        // 게임 시작 버튼 동작
-        playButton.addActionListener(e -> {
-            if (betAmount[0] == 0) {
-                JOptionPane.showMessageDialog(frame, "먼저 베팅을 완료하세요.", "오류", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // 카드 분배
-            ArrayList<String> playerCards = new ArrayList<>();
-            ArrayList<String> bankerCards = new ArrayList<>();
-            playerCards.add(deck.remove(0));
-            playerCards.add(deck.remove(0));
-            bankerCards.add(deck.remove(0));
-            bankerCards.add(deck.remove(0));
-
-            // 카드 표시
-            updateCardPanel(playerPanel, playerCards, "Player");
-            updateCardPanel(dealerPanel, bankerCards, "Banker");
-
-            // 5초 후 결과 표시
-            new Timer().schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    SwingUtilities.invokeLater(() -> {
-                        int playerScore = calculateScore(playerCards);
-                        int bankerScore = calculateScore(bankerCards);
-                        String result;
-
-                        if (playerScore == bankerScore) {
-                            result = "Tie";
-                        } else if (playerScore > bankerScore) {
-                            result = "Player";
-                        } else {
-                            result = "Banker";
-                        }
-
-                        // 배팅 결과 확인
-                        if (result.equals(selectedBet[0])) {
-                            int winnings = selectedBet[0].equals("Tie") ? betAmount[0] * 8 : betAmount[0] * 2;
-                            balance[0] += winnings;
-                            JOptionPane.showMessageDialog(frame, "축하합니다! " + winnings + "포인트를 획득했습니다.", "승리", JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(frame, "아쉽습니다! " + result + "가 승리했습니다.", "패배", JOptionPane.INFORMATION_MESSAGE);
-                        }
-
-                        // 잔액 업데이트
-                        balanceLabel.setText("잔액: " + balance[0]);
-                        betAmount[0] = 0; // 베팅 금액 초기화
-                    });
-                }
-            }, 3000); // 3초 지연
-        });
-
-        // 채팅 버튼 동작
-        chatButton.addActionListener(e -> {
-            SwingUtilities.invokeLater(() -> ChatApp.main(new String[]{}));
-        });
-
-        frame.setVisible(true);
+//        // 배팅 버튼 동작
+//        betButton.addActionListener(e -> {
+//            try {
+//                int bet = Integer.parseInt(betField.getText());
+//                if (bet > balance[0]) {
+//                    JOptionPane.showMessageDialog(frame, "잔액이 부족합니다.", "오류", JOptionPane.ERROR_MESSAGE);
+//                } else if (bet <= 0) {
+//                    JOptionPane.showMessageDialog(frame, "유효한 금액을 입력하세요.", "오류", JOptionPane.ERROR_MESSAGE);
+//                } else if (!playerBet.isSelected() && !bankerBet.isSelected() && !tieBet.isSelected()) {
+//                    JOptionPane.showMessageDialog(frame, "베팅할 대상을 선택하세요.", "오류", JOptionPane.ERROR_MESSAGE);
+//                } else {
+//                    betAmount[0] = bet;
+//                    balance[0] -= bet;
+//                    balanceLabel.setText("잔액: " + balance[0]);
+//
+//                    if (playerBet.isSelected()) selectedBet[0] = "Player";
+//                    if (bankerBet.isSelected()) selectedBet[0] = "Banker";
+//                    if (tieBet.isSelected()) selectedBet[0] = "Tie";
+//
+//                    JOptionPane.showMessageDialog(frame, selectedBet[0] + "에 " + bet + "포인트를 배팅했습니다.", "베팅 완료", JOptionPane.INFORMATION_MESSAGE);
+//                }
+//            } catch (NumberFormatException ex) {
+//                JOptionPane.showMessageDialog(frame, "숫자를 입력하세요.", "오류", JOptionPane.ERROR_MESSAGE);
+//            }
+//        });
+//
+//        // 게임 시작 버튼 동작
+//        playButton.addActionListener(e -> {
+//            if (betAmount[0] == 0) {
+//                JOptionPane.showMessageDialog(frame, "먼저 베팅을 완료하세요.", "오류", JOptionPane.ERROR_MESSAGE);
+//                return;
+//            }
+//
+//            // 카드 분배
+//            ArrayList<String> playerCards = new ArrayList<>();
+//            ArrayList<String> bankerCards = new ArrayList<>();
+//            playerCards.add(deck.remove(0));
+//            playerCards.add(deck.remove(0));
+//            bankerCards.add(deck.remove(0));
+//            bankerCards.add(deck.remove(0));
+//
+//            // 카드 표시
+//            updateCardPanel(playerPanel, playerCards, "Player");
+//            updateCardPanel(dealerPanel, bankerCards, "Banker");
+//
+//            // 5초 후 결과 표시
+//            new Timer().schedule(new TimerTask() {
+//                @Override
+//                public void run() {
+//                    SwingUtilities.invokeLater(() -> {
+//                        int playerScore = calculateScore(playerCards);
+//                        int bankerScore = calculateScore(bankerCards);
+//                        String result;
+//
+//                        if (playerScore == bankerScore) {
+//                            result = "Tie";
+//                        } else if (playerScore > bankerScore) {
+//                            result = "Player";
+//                        } else {
+//                            result = "Banker";
+//                        }
+//
+//                        // 배팅 결과 확인
+//                        if (result.equals(selectedBet[0])) {
+//                            int winnings = selectedBet[0].equals("Tie") ? betAmount[0] * 8 : betAmount[0] * 2;
+//                            balance[0] += winnings;
+//                            JOptionPane.showMessageDialog(frame, "축하합니다! " + winnings + "포인트를 획득했습니다.", "승리", JOptionPane.INFORMATION_MESSAGE);
+//                        } else {
+//                            JOptionPane.showMessageDialog(frame, "아쉽습니다! " + result + "가 승리했습니다.", "패배", JOptionPane.INFORMATION_MESSAGE);
+//                        }
+//
+//                        // 잔액 업데이트
+//                        balanceLabel.setText("잔액: " + balance[0]);
+//                        betAmount[0] = 0; // 베팅 금액 초기화
+//                    });
+//                }
+//            }, 3000); // 3초 지연
+//        });
+//
+////        // 채팅 버튼 동작
+////        chatButton.addActionListener(e -> {
+////            SwingUtilities.invokeLater(() -> ChatApp.main(new String[]{}));
+////        });
+//
+//        frame.setVisible(true);
     }
 
     private static ArrayList<String> createDeck() {
@@ -231,7 +263,7 @@ public class Baccarat {
         return score % 10;
     }
 
-    private static void updateCardPanel(JPanel panel, ArrayList<String> cards, String label) {
+    public void updateCardPanel(JPanel panel, ArrayList<String> cards, String label) {
         panel.removeAll();
         panel.add(new JLabel(label + " Cards: "));
         for (String card : cards) {

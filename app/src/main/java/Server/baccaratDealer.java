@@ -51,7 +51,7 @@ public class baccaratDealer implements dealerI{
             hand.add(deck.drawCard());
             hand.add(deck.drawCard());
             playerHands.put(player.getName(), hand);
-            player.sendMessage(mg.blackJackCard(hand, dealerCards).toString());
+            player.sendMessage(mg.sendDealerPlayerCard(hand, dealerCards, room.getGameId()).toString());
         }
     }
 
@@ -71,12 +71,12 @@ public class baccaratDealer implements dealerI{
 
     public void handleBet(int amount, String bet){
         if(playerTurn.getUserInstance().getMoney()<amount){
-            playerTurn.sendMessage(mg.errorMessage("잔액 부족").toString());
+            playerTurn.sendMessage(mg.errorMessage("not enough money").toString());
             return;
         }
         playerTurn.getUserInstance().betMoney(amount);
         currentBets.put(playerTurn.getName(), amount);
-        room.broadcastGameUpdate(playerTurn.getName(), amount);
+        room.broadcastGameUpdate(playerTurn.getUserInstance().getId(), amount);
         playerAct.set(true);
     }
 
@@ -107,23 +107,24 @@ public class baccaratDealer implements dealerI{
                 playerTurn.getUserInstance().addMoney(currentBets.get(playerTurn.getName())*2);
             }
         }
-        playerTurn.sendMessage(mg.gameResult(prize, result, playerHands.get(playerTurn.getName()), dealerCards).toString());
+        playerTurn.sendMessage(mg.gameResult(prize, result, playerHands.get(playerTurn.getName()), dealerCards, room.getGameId()).toString());
     }
 
     private void waitForAct(List<client> players, Map<String, Boolean> activePlayers){
         for(client player : players){
             if(!activePlayers.get(player.getName())) continue;
             playerTurn = player;
+            player.sendMessage(mg.errorMessage("your turn!").toString());
             this.counter = new CountDownLatch(1);
             ScheduledFuture<?> future = timerExecutor.scheduleAtFixedRate(()->{
                 if(roundTime > 0 && !playerAct.get()){
-                    room.broadcastTimer(roundTime);
+                    room.broadcastTimer(roundTime, room.getGameId());
                     roundTime--;
                 }else{
                     if(roundTime<=0) handleTimeouts(player, activePlayers);
                     roundTime = 30;
                     playerAct.set(false);
-                    room.broadcastTimer(roundTime);
+                    room.broadcastTimer(roundTime, room.getGameId());
                     counter.countDown();
                 }
             },0,1, TimeUnit.SECONDS);

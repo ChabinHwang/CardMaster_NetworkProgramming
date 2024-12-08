@@ -63,6 +63,10 @@ public class room extends Thread{
         return players.size();
     }
 
+    public int getGameId(){
+        return gameId;
+    }
+
     public void run(){
         while(true){
             if(gameId==0){
@@ -95,10 +99,11 @@ public class room extends Thread{
         return tmp;
     }
 
-    public void broadcastTimer(int remainingTime){
+    public void broadcastTimer(int remainingTime, int gameId){
         JSONObject message = new JSONObject();
         message.put("response", "timer_update");
-        message.put("data", new JSONObject().put("remaining_time", remainingTime));
+        message.put("data", new JSONObject().put("remaining_time", remainingTime)
+                .put("gameId", gameId));
         broadcast(message.toString());
     }
 

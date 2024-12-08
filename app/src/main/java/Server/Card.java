@@ -17,12 +17,7 @@ public class Card {
         return rank;
     }
     public int getValue() {
-        if(rank==1) return 11;
-        else if(rank==10||rank==11||rank==12)return 10;
-        else{
-            return rank;
-        }
-
+        return rank;
     }
 
     @Override
