@@ -1,15 +1,6 @@
 package src.cardmaster.blackjack_game;
 
-import src.cardmaster.chat.ChatApp;
-
-import javax.swing.*;
-import java.awt.*;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import org.json.JSONObject;
-import src.cardmaster.chat.ChatApp;
-import src.cardmaster.main_menu.MenuFrame;
+import src.cardmaster.chat.ChatPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -41,6 +32,7 @@ public class Blackjack extends JPanel {
     public JButton startButton;
     public JPanel balancePanel;
     public JLabel balanceLabel;
+    public JPanel chatPanel;
 
     public Blackjack(){
         // 초기 잔액
@@ -120,6 +112,10 @@ public class Blackjack extends JPanel {
 
         frame.add(buttonPanel, BorderLayout.SOUTH);
         frame.add(timerLabel, BorderLayout.NORTH); // 타이머 레이블 추가
+        chatPanel = new ChatPanel();
+        chatPanel.setPreferredSize(new Dimension(800, 150));
+        chatPanel.setBorder(BorderFactory.createTitledBorder("채팅창"));
+        buttonPanel.add(chatPanel, BorderLayout.SOUTH);
         add(frame);
         setVisible(true);
     }

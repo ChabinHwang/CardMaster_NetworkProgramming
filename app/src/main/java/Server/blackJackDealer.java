@@ -117,9 +117,11 @@ public class blackJackDealer implements dealerI{
         if(dealerValue>21 || playerValue>dealerValue){
             result = "win";
             playerTurn.getUserInstance().addMoney(currentBets.get(playerTurn.getName())*2);
+            playerTurn.sendMessage(mg.updateMoney(currentBets.get(playerTurn.getName())*2).toString());
         }else if(playerValue==dealerValue){
             result = "push";
             playerTurn.getUserInstance().addMoney(currentBets.get(playerTurn.getName()));
+            playerTurn.sendMessage(mg.updateMoney(currentBets.get(playerTurn.getName())).toString());
         }else{
             result = "lose";
         }

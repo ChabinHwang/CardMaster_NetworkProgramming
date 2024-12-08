@@ -2,35 +2,24 @@ package Server;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class gameList {
     private List<game> list;//0,1,2 이렇게 3개
     private messageGenerator mg;
 
-    private gameList() {
-    }
-
-    public static gameList getInstance() {
-        return Holder.instance;
-    }
-
-    public static class Holder {
-        private static final gameList instance = new gameList();
-    }
-
-    public void init(messageGenerator mg) {
-        this.mg = mg;
-        list = new ArrayList<>();
+    public gameList(messageGenerator mg) {
+        list = new CopyOnWriteArrayList<>();
         for (int i = 0; i < 3; i++) {
             list.add(new game(mg, i));
         }
     }
 
-    public game getGameInstance(int game) {
+    public synchronized game getGameInstance(int game) {
         return list.get(game);
     }
 
-    public int numberOfGames() {
+    public synchronized int numberOfGames() {
         return list.size();
     }
 }

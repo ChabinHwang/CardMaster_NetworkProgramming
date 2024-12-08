@@ -1,14 +1,11 @@
 package src.cardmaster.Casinowar_game;
 
-import org.json.JSONObject;
-import src.cardmaster.chat.ChatApp;
+import src.cardmaster.chat.ChatPanel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class Casinowar extends JPanel {
     private int initialBalance = 100;
@@ -29,6 +26,8 @@ public class Casinowar extends JPanel {
     public JButton startButton;
     public JPanel balancePanel;
     public JLabel balanceLabel;
+    public JPanel chatPanel;
+
     public ArrayList<String> playerCards;
     public ArrayList<String> dealerCards;
 
@@ -85,7 +84,7 @@ public class Casinowar extends JPanel {
         // 버튼 패널 (하단)
         buttonPanel = new JPanel(new BorderLayout());
         actionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JTextField betField = new JTextField(5);
+        betField = new JTextField(5);
         betButton = new JButton("배팅하기");
         warButton = new JButton("WAR");
         chatButton = new JButton("채팅하기");
@@ -105,8 +104,14 @@ public class Casinowar extends JPanel {
         balancePanel.add(balanceLabel);
         buttonPanel.add(balancePanel, BorderLayout.EAST);
 
+        chatPanel = new ChatPanel();
+        chatPanel.setPreferredSize(new Dimension(800, 150));
+        chatPanel.setBorder(BorderFactory.createTitledBorder("채팅창"));
+        buttonPanel.add(chatPanel, BorderLayout.SOUTH);
+
         frame.add(buttonPanel, BorderLayout.SOUTH);
         frame.add(timerLabel, BorderLayout.NORTH);
+
         add(frame);
         setVisible(true);
     }

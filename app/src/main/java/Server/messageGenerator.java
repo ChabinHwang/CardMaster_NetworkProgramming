@@ -27,11 +27,12 @@ public class messageGenerator {
         response.put("data", data);
         return response;
     }
-    public JSONObject sendMessage(String message){
+    public JSONObject sendMessage(String message, int gameId){
         response = new JSONObject();
         data = new JSONObject();
-        response.put("response", "error");
-        data.put("message", message);
+        response.put("response", "message");
+        data.put("message", message)
+                        .put("gameId", gameId);
         response.put("data", data);
         return response;
     }
@@ -102,7 +103,14 @@ public class messageGenerator {
         response.put("data", data);
         return response;
     }
-
+    public JSONObject updateMoney(int amount){
+        response = new JSONObject();
+        data = new JSONObject();
+        response.put("response", "moneyUpdate");
+        data.put("amount", amount);
+        response.put("data", data);
+        return response;
+    }
     public JSONObject sendDealerPlayerCard(List<Card> playerHands, List<Card> dealerCards, int gameId) {
         JSONObject response = new JSONObject();
         JSONObject data = new JSONObject();
@@ -189,6 +197,7 @@ public class messageGenerator {
             dealerCardArray.put(cardJson);
         }
         data.put("playerCard", playerCardArray);
+        data.put("dealerCard", dealerCardArray);
         data.put("gameId", gameId);
         data.put("result", result)
                 .put("prize", amount);

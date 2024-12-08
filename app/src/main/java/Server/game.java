@@ -2,13 +2,15 @@ package Server;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class game {
     List<room> list;
     int gameId;
+    messageGenerator mg;
 
     public game(messageGenerator mg, int gameId) {
-        list = new ArrayList<>();
+        list = new CopyOnWriteArrayList<>();
         this.gameId = gameId;
         list.add(new room("defaultRoom", mg, gameId));
     }

@@ -1,14 +1,11 @@
 package src.cardmaster.Baccarat_game;
 
-import org.json.JSONObject;
-import src.cardmaster.chat.ChatApp;
+import src.cardmaster.chat.ChatPanel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 public class Baccarat extends JPanel {
@@ -34,6 +31,7 @@ public class Baccarat extends JPanel {
     public ButtonGroup betGroup;
     public JPanel balancePanel;
     public JLabel balanceLabel;
+    public JPanel chatPanel;
 
     int initialBalance = 100; // 기본 잔액
     String id = "";// 유저 id
@@ -134,6 +132,10 @@ public class Baccarat extends JPanel {
 
         // 버튼 패널에 잔액 표시 추가
         buttonPanel.add(balancePanel, BorderLayout.EAST);
+        chatPanel = new ChatPanel();
+        chatPanel.setPreferredSize(new Dimension(800, 150));
+        chatPanel.setBorder(BorderFactory.createTitledBorder("채팅창"));
+        buttonPanel.add(chatPanel, BorderLayout.SOUTH);
 
         // 버튼 패널을 프레임 하단에 추가
         frame.add(buttonPanel, BorderLayout.SOUTH);

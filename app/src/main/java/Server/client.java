@@ -14,6 +14,7 @@ public class client extends Thread{
     private PrintWriter pw;
     private boolean login;
     private User user;
+    private gameList gameList;
     private game game;
     private room room;
     private boolean inGame;
@@ -21,11 +22,11 @@ public class client extends Thread{
     private volatile boolean terminationFlag = false;
     private messageGenerator mg;
 
-    public client(userManager manager, Socket sock){
+    public client(userManager manager, Socket sock, gameList gameList, messageGenerator mg){
         this.sock = sock;
         this.manager = manager;
-        mg = new messageGenerator();
-        gameList.getInstance().init(this.mg);
+        this.gameList = gameList;
+        this.mg = mg;
         try{
             pw = new PrintWriter(new OutputStreamWriter(sock.getOutputStream()));
             br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
@@ -51,7 +52,7 @@ public class client extends Thread{
                         sendMessage(mg.errorMessage("loginFail").toString());
                     }else{
                         login = true;
-                        sendMessage(mg.loginSuccess(gameList.getInstance(), this.user).toString());
+                        sendMessage(mg.loginSuccess(gameList, this.user).toString());
                     }
                 }else if(request.equals("register")){
                     String id = requestData.getString("id");
@@ -67,17 +68,13 @@ public class client extends Thread{
                     }
                 }else if(request.equals("selectGame")){
                     int gameId = requestData.getInt("gameNum");
-                    this.game = gameList.getInstance().getGameInstance(gameId);
-                    for(int i=0; i<this.game.numberOfRoom(); i++){
-                        if(game.getRoomInstance(i).numberOfPlayer()>4) continue;
-                        this.room = this.game.enterRoom(i, this);
-                        break;
-                    }
-                    if(this.room==null){
-                        game.makeRoom("room"+game.numberOfRoom()+1, mg, gameId);
-                        this.room = this.game.enterRoom(game.numberOfRoom(), this);
-                    }
-                    sendMessage(mg.sendRoomState(room, gameId).toString());
+                    this.game = gameList.getGameInstance(gameId);
+                    sendMessage(mg.sendRoomList(game).toString());
+                }else if(request.equals("selectRoom")){
+                    int roomId = requestData.getInt("roomId");
+                    this.room = game.enterRoom(roomId, this);
+                    System.out.println(this.room.getName());
+                    sendMessage(mg.sendRoomState(room, room.getGameId()).toString());
                 }else if(request.equals("start")){
                     if(room.isLeader(this)){
                         if((room.getState()==State.NEW)){

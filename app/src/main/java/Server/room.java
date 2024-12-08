@@ -30,13 +30,14 @@ public class room extends Thread{
         return this.roomName;
     }
 
-    public void join(client client){
+    public boolean join(client client){
         if(numberOfPlayer() == 0) {
             leader = client;
         }
         broadcast(mg.updateRoomState(this).toString());
         if(numberOfPlayer() > maxPlayer){
             client.sendMessage(mg.errorMessage("enter Failed").toString());
+            return false;
         }
         if(gameInProgress.get()){
             players.add(client);
@@ -46,6 +47,7 @@ public class room extends Thread{
             activePlayers.put(client.getName(), true);
         }
         client.sendMessage(mg.updatePlayerState(activePlayers.get(client.getName())).toString());
+        return true;
     }
 
     public void leave(client player){
@@ -145,8 +147,9 @@ public class room extends Thread{
                     break;
                 case "message":
                     for(client client : players){
-                        client.sendMessage(mg.sendMessage(data.getString("message")).toString());
+                        client.sendMessage(mg.sendMessage(data.getString("message"), gameId).toString());
                     }
+                    break;
                 default:
                     player.sendMessage(mg.errorMessage("unknown meesage type").toString());
             }

@@ -7,13 +7,11 @@ public class WelcomePanel extends JPanel {
     public JLabel welcomeLabel;
     public JLabel pointsLabel;
     public JPanel pointsPanel;
-    public WelcomePanel() {}
-
-    public void init(String name, int point){
+    public WelcomePanel() {
         setLayout(new BorderLayout());
         setBackground(new Color(0,0,0)); // 상단 배경색 설정
         // 왼쪽 환영 메시지
-        welcomeLabel = new JLabel("<html><b>" + name + "</b> 님, 환영합니다.</html>");
+        welcomeLabel = new JLabel("<html><b></b> 님, 환영합니다.</html>");
         welcomeLabel.setFont(new Font("휴먼둥근헤드라인", Font.PLAIN, 18)); // 귀여운 글씨체 적용
         welcomeLabel.setForeground(Color.WHITE);
 
@@ -22,7 +20,7 @@ public class WelcomePanel extends JPanel {
         add(welcomeLabel, BorderLayout.WEST);
 
         // 오른쪽 잔액 표시
-        pointsLabel = new JLabel("잔액 : " + point + " points", SwingConstants.CENTER);
+        pointsLabel = new JLabel("잔액 :  points", SwingConstants.CENTER);
         pointsLabel.setFont(new Font("휴먼둥근헤드라인", Font.PLAIN, 16)); // 귀여운 글씨체 적용
         pointsLabel.setForeground(Color.WHITE);
 

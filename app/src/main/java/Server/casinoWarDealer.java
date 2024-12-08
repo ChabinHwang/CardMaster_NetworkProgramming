@@ -36,6 +36,7 @@ public class casinoWarDealer implements dealerI {
         deck.shuffle();
         waitForAct(players, activePlayers);
         dealInitialCards(players);
+        playRounds("");
         waitForAct(players, activePlayers);
         timerExecutor.shutdown();
     }
