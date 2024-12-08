@@ -9,8 +9,8 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class casinoWarDealer implements dealerI {
-    private room room;
-    private Deck deck = new Deck();
+    private final room room;
+    private final Deck deck = new Deck();
     private final List<Card> dealerCards = new CopyOnWriteArrayList<>();
     private final Map<String, List<Card>> playerHands = new ConcurrentHashMap<>();
     private final Map<String, Integer> currentBets = new ConcurrentHashMap<>();
@@ -32,7 +32,7 @@ public class casinoWarDealer implements dealerI {
 
     public void play(List<client> players, Map<String, Boolean> activePlayers, int numberOfActivePlayer){
         timerExecutor = Executors.newScheduledThreadPool(1);
-        deck = new Deck();
+        deck.reset();
         deck.shuffle();
         waitForAct(players, activePlayers);
         dealInitialCards(players);
@@ -50,7 +50,7 @@ public class casinoWarDealer implements dealerI {
         }
     }
 
-    public synchronized void playRounds(String action){
+    public void playRounds(String action){
         int prize;
         String result;
         int playerScore = playerHands.get(playerTurn.getName()).getFirst().getRank();
@@ -113,6 +113,10 @@ public class casinoWarDealer implements dealerI {
         }
         playerTurn.sendMessage(mg.gameResult(prize, result, playerHands.get(playerTurn.getName()), dealerCards, room.getGameId()).toString());
         playerAct.set(true);
+    }
+
+    public void playerAct(){
+        this.playerAct.set(true);
     }
 
     public void handleBet(int amount, String bet){

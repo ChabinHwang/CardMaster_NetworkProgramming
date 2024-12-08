@@ -10,6 +10,7 @@ public class ChatPanel extends JPanel {
     public JTextArea chatArea;
     public JTextField inputField;
     public JButton sendButton;
+    public JScrollPane scrollPane;
 
     public ChatPanel(){
         chatArea = new JTextArea();
@@ -20,7 +21,7 @@ public class ChatPanel extends JPanel {
         chatArea.setFont(new Font("휴먼둥근헤드라인", Font.PLAIN, 16)); // 글씨체 설정
 
         // JScrollPane 추가 (스크롤 가능하게)
-        JScrollPane scrollPane = new JScrollPane(chatArea);
+        scrollPane = new JScrollPane(chatArea);
 
         // JTextField (사용자 입력용)
         inputField = new JTextField();

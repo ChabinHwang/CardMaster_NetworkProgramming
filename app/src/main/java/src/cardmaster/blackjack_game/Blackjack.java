@@ -15,7 +15,7 @@ public class Blackjack extends JPanel {
     private static int[] roundTime = {30}; // 초기 시간을 30초로 설정
 
     // 전역 변수로 버튼 선언
-    private static JButton standButton;
+    public JButton standButton;
     public JPanel frame;
     public JPanel mainPanel;
     public JPanel dealerPanel;
@@ -28,7 +28,6 @@ public class Blackjack extends JPanel {
     public JTextField betField;
     public JButton betButton;
     public JButton hitButton;
-    public JButton chatButton;
     public JButton startButton;
     public JPanel balancePanel;
     public JLabel balanceLabel;
@@ -93,14 +92,12 @@ public class Blackjack extends JPanel {
         betButton = new JButton("배팅하기");
         standButton = new JButton("스탠드"); // 버튼을 전역으로 설정
         hitButton = new JButton("추가 카드 받기");
-        chatButton = new JButton("채팅하기");
         startButton = new JButton("시작하기");
         actionPanel.add(new JLabel("배팅 금액: "));
         actionPanel.add(betField);
         actionPanel.add(betButton);
         actionPanel.add(hitButton);
         actionPanel.add(standButton); // 버튼 추가
-        actionPanel.add(chatButton);
         actionPanel.add(startButton);
         buttonPanel.add(actionPanel, BorderLayout.CENTER);
 

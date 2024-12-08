@@ -10,15 +10,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class room extends Thread{
-    private String roomName;
-    private volatile List<client> players = new CopyOnWriteArrayList<>();
-    private volatile Map<String, Boolean> activePlayers = new ConcurrentHashMap<>();
+    private final String roomName;
+    private final List<client> players = new CopyOnWriteArrayList<>();
+    private final Map<String, Boolean> activePlayers = new ConcurrentHashMap<>();
     private volatile client leader;
     private volatile dealerI dealer;
     private int maxPlayer = 8;
     private AtomicBoolean gameInProgress = new AtomicBoolean(false);
-    private messageGenerator mg;
-    private int gameId;
+    private volatile String phase;
+    private final messageGenerator mg;
+    private final int gameId;
 
     public room(String roomName, messageGenerator mg, int gameId){
         this.mg = mg;
@@ -147,7 +148,7 @@ public class room extends Thread{
                     break;
                 case "message":
                     for(client client : players){
-                        client.sendMessage(mg.sendMessage(data.getString("message"), gameId).toString());
+                        client.sendMessage(mg.sendMessage(data.getString("message"), gameId, player.getUserInstance().getId()).toString());
                     }
                     break;
                 default:

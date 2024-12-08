@@ -27,12 +27,13 @@ public class messageGenerator {
         response.put("data", data);
         return response;
     }
-    public JSONObject sendMessage(String message, int gameId){
+    public JSONObject sendMessage(String message, int gameId, String id){
         response = new JSONObject();
         data = new JSONObject();
         response.put("response", "message");
         data.put("message", message)
-                        .put("gameId", gameId);
+                .put("gameId", gameId)
+                .put("userId", id);
         response.put("data", data);
         return response;
     }

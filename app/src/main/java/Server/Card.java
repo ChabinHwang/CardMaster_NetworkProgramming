@@ -16,6 +16,7 @@ public class Card {
     public int getRank() {
         return rank;
     }
+
     public int getValue() {
         return rank;
     }

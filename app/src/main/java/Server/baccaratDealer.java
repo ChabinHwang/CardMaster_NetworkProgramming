@@ -8,13 +8,13 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class baccaratDealer implements dealerI{
-    private room room;
-    private Deck deck = new Deck();
+    private final room room;
+    private final Deck deck = new Deck();
     private final List<Card> dealerCards = new CopyOnWriteArrayList<>();
-    private volatile Map<String, List<Card>> playerHands = new ConcurrentHashMap<>();
-    private volatile Map<String, String> betting = new ConcurrentHashMap<>();
-    private volatile Map<String, Integer> currentBets = new ConcurrentHashMap<>();
-    private AtomicBoolean playerAct = new AtomicBoolean(false);
+    private final Map<String, List<Card>> playerHands = new ConcurrentHashMap<>();
+    private final Map<String, String> betting = new ConcurrentHashMap<>();
+    private final Map<String, Integer> currentBets = new ConcurrentHashMap<>();
+    private final AtomicBoolean playerAct = new AtomicBoolean(false);
     private volatile client playerTurn;
     private ScheduledExecutorService timerExecutor;
     private int roundTime = 30;
@@ -32,6 +32,7 @@ public class baccaratDealer implements dealerI{
 
     public void play(List<client> players, Map<String, Boolean> activePlayers, int numberOfActivePlayer){
         timerExecutor = Executors.newScheduledThreadPool(1);
+        deck.reset();
         deck.shuffle();
         waitForAct(players, activePlayers);
         dealInitialCards(players, activePlayers);
@@ -58,13 +59,7 @@ public class baccaratDealer implements dealerI{
     private int calculateScore(List<Card> cards){
         int score = 0;
         for (Card card : cards) {
-            if (card.getRank()>=10) {
-                score += 0;
-            } else if (card.getRank()==1) {
-                score += 1;
-            } else {
-                score += card.getRank();
-            }
+            score += card.getRank();
         }
         return score % 10;
     }

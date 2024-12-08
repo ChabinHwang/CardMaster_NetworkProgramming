@@ -7,16 +7,16 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class blackJackDealer implements dealerI{
-    private room room;
-    private messageGenerator mg;
-    private Deck deck = new Deck();
-    private List<Card> dealerCards = new CopyOnWriteArrayList<>();
+    private final room room;
+    private final messageGenerator mg;
+    private final Deck deck = new Deck();
+    private final List<Card> dealerCards = new CopyOnWriteArrayList<>();
     // playerHands: 플레이어별 카드 목록. (플레이어 이름을 키로 가지는 맵)
-    private volatile Map<String, List<Card>> playerHands = new ConcurrentHashMap<String, List<Card>>();
+    private final Map<String, List<Card>> playerHands = new ConcurrentHashMap<String, List<Card>>();
     // 플레이어 현재 배팅
-    private volatile Map<String, Integer> currentBets = new ConcurrentHashMap<>();
+    private final Map<String, Integer> currentBets = new ConcurrentHashMap<>();
     // 현재 턴에서 플레이어가 행동했는지 여부를 나타내는 플래그.
-    private AtomicBoolean playerAct = new AtomicBoolean(false);
+    private final AtomicBoolean playerAct = new AtomicBoolean(false);
     private volatile client playerTurn;
     private ScheduledExecutorService timerExecutor;
     // roundTime: 한 턴의 제한 시간(기본값: 30초).
@@ -35,6 +35,7 @@ public class blackJackDealer implements dealerI{
 
     public void play(List<client> players, Map<String, Boolean> activePlayers, int numberOfActivePlayer){
         timerExecutor = Executors.newScheduledThreadPool(1);
+        deck.reset();
         deck.shuffle();
         waitForAct(players, activePlayers);
         dealInitialCards(players);
@@ -53,7 +54,7 @@ public class blackJackDealer implements dealerI{
             List<Card> hand = new ArrayList<>();
             hand.add(deck.drawCard());
             hand.add(deck.drawCard());
-            playerHands.put(player.getUserInstance().getId(), hand);
+            playerHands.put(player.getName(), hand);
             player.sendMessage(mg.sendDealerPlayerCard(hand, dealerCards, room.getGameId()).toString());
         }
     }
@@ -96,8 +97,10 @@ public class blackJackDealer implements dealerI{
     }
 
     public void playRounds(String action){
+        System.out.println(playerTurn.getName());
         int playerValue = getHandValue(playerHands.get(playerTurn.getName()));
         int dealerValue = getHandValue(dealerCards);
+        int prize = 0;
         String result;
         if(action.equals("hit")){
             playerHands.get(playerTurn.getName()).add(deck.drawCard());
@@ -116,23 +119,27 @@ public class blackJackDealer implements dealerI{
         }
         if(dealerValue>21 || playerValue>dealerValue){
             result = "win";
-            playerTurn.getUserInstance().addMoney(currentBets.get(playerTurn.getName())*2);
-            playerTurn.sendMessage(mg.updateMoney(currentBets.get(playerTurn.getName())*2).toString());
+            prize = currentBets.get(playerTurn.getName())*2;
+            playerTurn.getUserInstance().addMoney(prize);
+            playerTurn.sendMessage(mg.updateMoney(prize).toString());
         }else if(playerValue==dealerValue){
             result = "push";
-            playerTurn.getUserInstance().addMoney(currentBets.get(playerTurn.getName()));
-            playerTurn.sendMessage(mg.updateMoney(currentBets.get(playerTurn.getName())).toString());
+            prize = currentBets.get(playerTurn.getName());
+            playerTurn.getUserInstance().addMoney(prize);
+            playerTurn.sendMessage(mg.updateMoney(prize).toString());
         }else{
             result = "lose";
+            prize = 0;
         }
         playerAct.set(true);
-        playerTurn.sendMessage(mg.gameResult(playerTurn.getUserInstance().getMoney(), result, playerHands.get(playerTurn.getName()), dealerCards, room.getGameId()).toString());
+        playerTurn.sendMessage(mg.gameResult(prize, result, playerHands.get(playerTurn.getName()), dealerCards, room.getGameId()).toString());
     }
 
     private void waitForAct(List<client> players, Map<String, Boolean> activePlayers){
         for(client player : players){
             if(!activePlayers.get(player.getName())) continue;
             playerTurn = player;
+            System.out.println(playerTurn.getName());
             player.sendMessage(mg.errorMessage("your turn!").toString());
             this.counter = new CountDownLatch(1);
             ScheduledFuture<?> future = timerExecutor.scheduleAtFixedRate(()->{//비동기로 진행
