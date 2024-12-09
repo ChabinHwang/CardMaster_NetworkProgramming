@@ -166,7 +166,7 @@ public class ClientNetwork extends Thread{
                         cu.setSize(800, 750);
                         if(gameId==0){
                             cu.blackjack.frame.setSize(800, 750);
-                            cu.blackjack.updateDealerPanel(cu.blackjack.dealerPanel, dealer, false);
+                            cu.blackjack.updateDealerPanel(cu.blackjack.dealerPanel, dealer, true);
                             cu.blackjack.updatePlayerPanel(cu.blackjack.playerPanel, player);
                             cu.blackjack.balanceLabel.setText("잔액: "+this.money);
                         }else if(gameId==1){
@@ -188,10 +188,16 @@ public class ClientNetwork extends Thread{
                         String userId = responseData.getString("userId");
                         if(gameId==0){
                             ((ChatPanel)cu.blackjack.chatPanel).chatArea.append(userId+":"+message);
+                            ((ChatPanel)cu.blackjack.chatPanel).scrollPane.revalidate();
+                            ((ChatPanel)cu.blackjack.chatPanel).scrollPane.repaint();
                         }else if(gameId==1){
                             ((ChatPanel)cu.casinowar.chatPanel).chatArea.append(userId+":"+message);
+                            ((ChatPanel)cu.casinowar.chatPanel).scrollPane.revalidate();
+                            ((ChatPanel)cu.casinowar.chatPanel).scrollPane.repaint();
                         }else {
                             ((ChatPanel)cu.baccarat.chatPanel).chatArea.append(userId+":"+message);
+                            ((ChatPanel)cu.baccarat.chatPanel).scrollPane.revalidate();
+                            ((ChatPanel)cu.baccarat.chatPanel).scrollPane.repaint();
                         }
                         break;
                 }

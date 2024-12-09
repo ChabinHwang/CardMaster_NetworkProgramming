@@ -14,6 +14,7 @@ public class BtCasinoChatHandler implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e){
         String text = ((ChatPanel)cu.casinowar.chatPanel).inputField.getText();
+        ((ChatPanel)cu.casinowar.chatPanel).inputField.setText("");
         cu.net.sendMessage(text+"\n");
     }
 }

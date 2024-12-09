@@ -11,17 +11,20 @@ public class ChatPanel extends JPanel {
     public JTextField inputField;
     public JButton sendButton;
     public JScrollPane scrollPane;
+    public JPanel inputPanel;
+    public JPanel buttonPanel;
 
     public ChatPanel(){
         chatArea = new JTextArea();
         chatArea.setEditable(false); // 사용자가 직접 수정 불가능
-        chatArea.setPreferredSize(new Dimension(750, 80));
         chatArea.setBackground(Color.WHITE); // 배경색 흰색
         chatArea.setForeground(Color.BLACK); // 글씨색 검정
         chatArea.setFont(new Font("휴먼둥근헤드라인", Font.PLAIN, 16)); // 글씨체 설정
+        chatArea.setLineWrap(true);
 
         // JScrollPane 추가 (스크롤 가능하게)
-        scrollPane = new JScrollPane(chatArea);
+        scrollPane = new JScrollPane(chatArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setPreferredSize(new Dimension(750, 80));
 
         // JTextField (사용자 입력용)
         inputField = new JTextField();
@@ -35,11 +38,11 @@ public class ChatPanel extends JPanel {
         sendButton.setFont(new Font("휴먼둥근헤드라인", Font.BOLD, 14)); // 글씨체 설정
 
         // 하단 입력 패널 생성
-        JPanel inputPanel = new JPanel(new BorderLayout());
+        inputPanel = new JPanel(new BorderLayout());
         inputPanel.add(inputField, BorderLayout.CENTER);
 
         // 버튼 패널
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.add(sendButton);
         inputPanel.add(buttonPanel, BorderLayout.EAST);
 

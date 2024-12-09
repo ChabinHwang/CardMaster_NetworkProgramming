@@ -117,7 +117,7 @@ public class blackJackDealer implements dealerI{
                 dealerCards.add(deck.drawCard());
             }
         }
-        if(dealerValue>21 || playerValue>dealerValue){
+        if(dealerValue > 21 || (playerValue > dealerValue)&&(playerValue <= 21)){
             result = "win";
             prize = currentBets.get(playerTurn.getName())*2;
             playerTurn.getUserInstance().addMoney(prize);

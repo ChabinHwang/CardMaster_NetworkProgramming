@@ -14,6 +14,7 @@ public class BtBaccaratChatHandler implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e){
         String text = ((ChatPanel)cu.baccarat.chatPanel).inputField.getText();
+        ((ChatPanel)cu.baccarat.chatPanel).inputField.setText("");
         cu.net.sendMessage(text+"\n");
     }
 }

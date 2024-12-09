@@ -14,6 +14,7 @@ public class BtBlackJackChatHandler implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e){
         String text = ((ChatPanel)cu.blackjack.chatPanel).inputField.getText();
+        ((ChatPanel)cu.blackjack.chatPanel).inputField.setText("");
         cu.net.sendMessage(text+"\n");
     }
 }

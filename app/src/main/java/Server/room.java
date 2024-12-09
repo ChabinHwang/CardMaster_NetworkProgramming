@@ -54,6 +54,9 @@ public class room extends Thread{
     public void leave(client player){
         players.remove(player);
         activePlayers.remove(player.getName());
+        if(player==leader){
+            leader = players.getFirst();
+        }
     }
 
     public void broadcast(String message){
@@ -121,6 +124,10 @@ public class room extends Thread{
             JSONObject data = requestRoot.getJSONObject("data");
             switch(request){
                 case "bet":
+                    if(!gameInProgress.get()) {
+                        player.sendMessage(mg.errorMessage("not playing time").toString());
+                        return;
+                    }
                     if(!Objects.equals(dealer.checkPlayerTurn().getName(), player.getName())){
                         player.sendMessage(mg.errorMessage("not your turn").toString());
                         return;
@@ -130,6 +137,10 @@ public class room extends Thread{
                     dealer.handleBet(amount, bet);
                     break;
                 case "hitOrStand":
+                    if(!gameInProgress.get()) {
+                        player.sendMessage(mg.errorMessage("not playing time").toString());
+                        return;
+                    }
                     if(!Objects.equals(dealer.checkPlayerTurn().getName(), player.getName())){
                         player.sendMessage(mg.errorMessage("not your turn").toString());
                         return;
@@ -138,12 +149,20 @@ public class room extends Thread{
                     dealer.playRounds(hitOrStand);
                     break;
                 case "call":
+                    if(!gameInProgress.get()) {
+                        player.sendMessage(mg.errorMessage("not playing time").toString());
+                        return;
+                    }
                     int additionalBet = data.optInt("amount", 0);
                     String gotoWar = data.getString("gotoWar");
                     casinoWarDealer casinodealer = (casinoWarDealer)dealer;
                     casinodealer.resolveWar(gotoWar, additionalBet);
                     break;
                 case "leave":
+                    if(!gameInProgress.get()) {
+                        player.sendMessage(mg.errorMessage("not playing time").toString());
+                        return;
+                    }
                     leave(player);
                     break;
                 case "message":
