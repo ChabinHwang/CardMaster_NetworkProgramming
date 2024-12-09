@@ -39,6 +39,8 @@ public class ClientNetwork extends Thread{
                 String response = responseRoot.getString("response");
                 JSONObject responseData = responseRoot.getJSONObject("data");
                 int gameId;
+                String name;
+                int money;
                 ArrayList<String> player = new ArrayList<String>();
                 ArrayList<String> dealer = new ArrayList<String>();
                 switch (response){
@@ -46,10 +48,10 @@ public class ClientNetwork extends Thread{
                         int blackJackPlayer = responseData.getInt("game0");
                         int casinoPlayer = responseData.getInt("game1");
                         int baccaratPlayer = responseData.getInt("game2");
-                        int money = responseData.getInt("money");
+                        name = responseData.getString("name");
+                        money = responseData.getInt("money");
                         this.money = money;
                         int numberOfGames = responseData.getInt("numberOfGames");
-                        String name = responseData.getString("name");
                         cu.setLocationRelativeTo(null);
                         cu.setSize(800, 500);
 //                        cu.menuFrame.menuPanel.update(blackJackPlayer, baccaratPlayer, casinoPlayer);
@@ -200,6 +202,14 @@ public class ClientNetwork extends Thread{
                             ((ChatPanel)cu.baccarat.chatPanel).scrollPane.repaint();
                         }
                         break;
+                    case "leaveRoomResponse":
+                        name = responseData.getString("name");
+                        money = responseData.getInt("money");
+                        cu.setLocationRelativeTo(null);
+                        cu.setSize(800, 500);
+                        cu.menuFrame.welcomePanel.welcomeLabel.setText("<html><b>"+name+"</b> 님, 환영합니다.</html>");
+                        cu.menuFrame.welcomePanel.pointsLabel.setText("잔액 : "+money+" points");
+                        cu.setContentPane(cu.menuFrame);
                 }
 
             }
@@ -233,6 +243,7 @@ public class ClientNetwork extends Thread{
         this.pw.println(request.toString());
         this.pw.flush();
     }
+
     public void sendEnterRequest(int gameid){
         JSONObject request = new JSONObject();
         JSONObject data = new JSONObject();
@@ -242,6 +253,7 @@ public class ClientNetwork extends Thread{
         this.pw.println(request.toString());
         this.pw.flush();
     }
+
     public void sendStartRequest(){
         JSONObject request = new JSONObject();
         JSONObject data = new JSONObject();
@@ -250,6 +262,7 @@ public class ClientNetwork extends Thread{
         this.pw.println(request.toString());
         this.pw.flush();
     }
+
     public void sendBetRequest(int amount, String bet, int gameId){
         if(amount>this.money){
             JOptionPane.showMessageDialog(cu, "금액이 부족합니다. 다시 배팅해주세요");
@@ -272,6 +285,7 @@ public class ClientNetwork extends Thread{
         this.pw.println(request.toString());
         this.pw.flush();
     }
+
     public void sendMessage(String message){
         JSONObject request = new JSONObject();
         JSONObject data = new JSONObject();
@@ -281,6 +295,7 @@ public class ClientNetwork extends Thread{
         this.pw.println(request.toString());
         this.pw.flush();
     }
+
     public void sendHitOrStand(String hs){
         JSONObject request = new JSONObject();
         JSONObject data = new JSONObject();
@@ -290,12 +305,22 @@ public class ClientNetwork extends Thread{
         this.pw.println(request.toString());
         this.pw.flush();
     }
+
     public void sendWarOrSurrender(int amount, String ws){
         JSONObject request = new JSONObject();
         JSONObject data = new JSONObject();
         request.put("request", "call");
         data.put("gotoWar", ws);
         data.put("amount", amount);
+        request.put("data", data);
+        this.pw.println(request.toString());
+        this.pw.flush();
+    }
+
+    public void sendQuitRequest(){
+        JSONObject request = new JSONObject();
+        JSONObject data = new JSONObject();
+        request.put("request", "leave");
         request.put("data", data);
         this.pw.println(request.toString());
         this.pw.flush();

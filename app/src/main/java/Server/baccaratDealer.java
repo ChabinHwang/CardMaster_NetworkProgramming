@@ -30,29 +30,41 @@ public class baccaratDealer implements dealerI{
         return this.playerTurn;
     }
 
+    public void changePlayerTurn(client player){
+        this.playerTurn = player;
+    }
+
     public void play(List<client> players, Map<String, Boolean> activePlayers, int numberOfActivePlayer){
         timerExecutor = Executors.newScheduledThreadPool(1);
         deck.reset();
         deck.shuffle();
         waitForAct(players, activePlayers);
         dealInitialCards(players, activePlayers);
-        for(client player : players){
-            playerTurn = player;
-            if(!activePlayers.get(player.getName())) continue;
-            playRounds("");
+        try{
+            for(client player : players){
+                playerTurn = player;
+                if(!activePlayers.get(player.getName())) continue;
+                playRounds("");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 
     private void dealInitialCards(List<client> players, Map<String, Boolean> activePlayers){
-        dealerCards.add(deck.drawCard());
-        dealerCards.add(deck.drawCard());
-        for(client player : players){
-            if(!activePlayers.get(player.getName())) continue;
-            List<Card> hand = new ArrayList<>();
-            hand.add(deck.drawCard());
-            hand.add(deck.drawCard());
-            playerHands.put(player.getName(), hand);
-            player.sendMessage(mg.sendDealerPlayerCard(hand, dealerCards, room.getGameId()).toString());
+        try{
+            dealerCards.add(deck.drawCard());
+            dealerCards.add(deck.drawCard());
+            for(client player : players){
+                if(!activePlayers.get(player.getName())) continue;
+                List<Card> hand = new ArrayList<>();
+                hand.add(deck.drawCard());
+                hand.add(deck.drawCard());
+                playerHands.put(player.getName(), hand);
+                player.sendMessage(mg.sendDealerPlayerCard(hand, dealerCards, room.getGameId()).toString());
+            }
+        }catch(Exception e){
+            e.printStackTrace();
         }
     }
 
@@ -65,14 +77,18 @@ public class baccaratDealer implements dealerI{
     }
 
     public void handleBet(int amount, String bet){
-        if(playerTurn.getUserInstance().getMoney()<amount){
-            playerTurn.sendMessage(mg.errorMessage("not enough money").toString());
-            return;
+        try{
+            if(playerTurn.getUserInstance().getMoney()<amount){
+                playerTurn.sendMessage(mg.errorMessage("not enough money").toString());
+                return;
+            }
+            playerTurn.getUserInstance().betMoney(amount);
+            currentBets.put(playerTurn.getName(), amount);
+            room.broadcastGameUpdate(playerTurn.getUserInstance().getId(), amount);
+            playerAct.set(true);
+        }catch(Exception e){
+            e.printStackTrace();
         }
-        playerTurn.getUserInstance().betMoney(amount);
-        currentBets.put(playerTurn.getName(), amount);
-        room.broadcastGameUpdate(playerTurn.getUserInstance().getId(), amount);
-        playerAct.set(true);
     }
 
     private void handleTimeouts(client player, Map<String, Boolean> activePlayers){
@@ -82,53 +98,62 @@ public class baccaratDealer implements dealerI{
     }
 
     public void playRounds(String action){
-        int playerScore = calculateScore(playerHands.get(playerTurn.getName()));
-        int bankerScore = calculateScore(dealerCards);
-        String result;
-        int prize = 0;
-        if(playerScore == bankerScore){
-            result = "Tie";
-        }else if(playerScore>bankerScore){
-            result = "Player";
-        }else{
-            result = "Banker";
-        }
-        if(Objects.equals(betting.get(playerTurn.getName()), result)){
-            if(result=="Tie"){
-                prize = currentBets.get(playerTurn.getName())*8;
-                playerTurn.getUserInstance().addMoney(currentBets.get(playerTurn.getName())*8);
+        try{
+            int playerScore = calculateScore(playerHands.get(playerTurn.getName()));
+            int bankerScore = calculateScore(dealerCards);
+            String result;
+            int prize = 0;
+            if(playerScore == bankerScore){
+                result = "Tie";
+            }else if(playerScore>bankerScore){
+                result = "Player";
             }else{
-                prize = currentBets.get(playerTurn.getName())*2;
-                playerTurn.getUserInstance().addMoney(currentBets.get(playerTurn.getName())*2);
+                result = "Banker";
             }
+            if(Objects.equals(betting.get(playerTurn.getName()), result)){
+                if(result=="Tie"){
+                    prize = currentBets.get(playerTurn.getName())*8;
+                    playerTurn.getUserInstance().addMoney(currentBets.get(playerTurn.getName())*8);
+                }else{
+                    prize = currentBets.get(playerTurn.getName())*2;
+                    playerTurn.getUserInstance().addMoney(currentBets.get(playerTurn.getName())*2);
+                }
+            }
+            playerTurn.sendMessage(mg.gameResult(prize, result, playerHands.get(playerTurn.getName()), dealerCards, room.getGameId()).toString());
+        }catch(Exception e){
+            e.printStackTrace();
         }
-        playerTurn.sendMessage(mg.gameResult(prize, result, playerHands.get(playerTurn.getName()), dealerCards, room.getGameId()).toString());
     }
 
     private void waitForAct(List<client> players, Map<String, Boolean> activePlayers){
-        for(client player : players){
-            if(!activePlayers.get(player.getName())) continue;
-            playerTurn = player;
-            player.sendMessage(mg.errorMessage("your turn!").toString());
-            this.counter = new CountDownLatch(1);
-            ScheduledFuture<?> future = timerExecutor.scheduleAtFixedRate(()->{
-                if(roundTime > 0 && !playerAct.get()){
-                    room.broadcastTimer(roundTime, room.getGameId());
-                    roundTime--;
-                }else{
-                    if(roundTime<=0) handleTimeouts(player, activePlayers);
-                    roundTime = 30;
-                    playerAct.set(false);
-                    room.broadcastTimer(roundTime, room.getGameId());
-                    counter.countDown();
+        try{
+            for(client player : players){
+                if(!activePlayers.get(player.getName())) continue;
+                playerTurn = player;
+                player.sendMessage(mg.errorMessage("your turn!").toString());
+                this.counter = new CountDownLatch(1);
+                ScheduledFuture<?> future = timerExecutor.scheduleAtFixedRate(()->{
+                    if(roundTime > 0 && !playerAct.get() && !players.isEmpty()){
+                        room.broadcastTimer(roundTime, room.getGameId());
+                        roundTime--;
+                    }else{
+                        if(roundTime<=0) handleTimeouts(player, activePlayers);
+                        roundTime = 30;
+                        playerAct.set(false);
+                        room.broadcastTimer(roundTime, room.getGameId());
+                        counter.countDown();
+                    }
+                },0,1, TimeUnit.SECONDS);
+                try{
+                    counter.await();
+                    future.cancel(true);
+                }catch(InterruptedException e){
+                    e.printStackTrace();
                 }
-            },0,1, TimeUnit.SECONDS);
-            try{
-                counter.await();
-                future.cancel(true);
-            }catch(InterruptedException e){
-                e.printStackTrace();
+
             }
+        }catch(Exception e){
+            e.printStackTrace();
         }
     }
 }

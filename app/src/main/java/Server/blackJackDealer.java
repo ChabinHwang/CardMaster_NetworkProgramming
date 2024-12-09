@@ -33,12 +33,16 @@ public class blackJackDealer implements dealerI{
         return this.playerTurn;
     }
 
+    public void changePlayerTurn(client player){
+        this.playerTurn = player;
+    }
+
     public void play(List<client> players, Map<String, Boolean> activePlayers, int numberOfActivePlayer){
         timerExecutor = Executors.newScheduledThreadPool(1);
         deck.reset();
         deck.shuffle();
         waitForAct(players, activePlayers);
-        dealInitialCards(players);
+        dealInitialCards(players, activePlayers);
         waitForAct(players, activePlayers);
         timerExecutor.shutdown();
     }
@@ -47,15 +51,20 @@ public class blackJackDealer implements dealerI{
      * 딜러카드와 유저 카드를 배분하고, 이를 클라이언트에 발신
      * @param players 플레이어
      */
-    private void dealInitialCards(List<client> players){
-        dealerCards.add(deck.drawCard());
-        dealerCards.add(deck.drawCard());
-        for(client player : players){
-            List<Card> hand = new ArrayList<>();
-            hand.add(deck.drawCard());
-            hand.add(deck.drawCard());
-            playerHands.put(player.getName(), hand);
-            player.sendMessage(mg.sendDealerPlayerCard(hand, dealerCards, room.getGameId()).toString());
+    private void dealInitialCards(List<client> players, Map<String, Boolean> activePlayers){
+        try{
+            dealerCards.add(deck.drawCard());
+            dealerCards.add(deck.drawCard());
+            for(client player : players){
+                if(!activePlayers.get(player.getName())) continue;
+                List<Card> hand = new ArrayList<>();
+                hand.add(deck.drawCard());
+                hand.add(deck.drawCard());
+                playerHands.put(player.getName(), hand);
+                player.sendMessage(mg.sendDealerPlayerCard(hand, dealerCards, room.getGameId()).toString());
+            }
+        }catch(Exception e){
+            e.printStackTrace();
         }
     }
     
@@ -97,69 +106,78 @@ public class blackJackDealer implements dealerI{
     }
 
     public void playRounds(String action){
-        System.out.println(playerTurn.getName());
-        int playerValue = getHandValue(playerHands.get(playerTurn.getName()));
-        int dealerValue = getHandValue(dealerCards);
-        int prize = 0;
-        String result;
-        if(action.equals("hit")){
-            playerHands.get(playerTurn.getName()).add(deck.drawCard());
-            int handValue = getHandValue(playerHands.get(playerTurn.getName()));
-            if(handValue>21){
-                result = "bust";
-                playerTurn.sendMessage(mg.gameResult(0, result, playerHands.get(playerTurn.getName()), dealerCards, room.getGameId()).toString());
-                return;
+        try{
+            System.out.println(playerTurn.getName());
+            int playerValue = getHandValue(playerHands.get(playerTurn.getName()));
+            int dealerValue = getHandValue(dealerCards);
+            int prize = 0;
+            String result;
+            if(action.equals("hit")){
+                playerHands.get(playerTurn.getName()).add(deck.drawCard());
+                int handValue = getHandValue(playerHands.get(playerTurn.getName()));
+                if(handValue>21){
+                    result = "bust";
+                    playerTurn.sendMessage(mg.gameResult(0, result, playerHands.get(playerTurn.getName()), dealerCards, room.getGameId()).toString());
+                    return;
+                }
+                playerValue = getHandValue(playerHands.get(playerTurn.getName()));
+                dealerValue = getHandValue(dealerCards);
+            }else if(action.equals("stand")) {
+                while (getHandValue(dealerCards) < 17) {
+                    dealerCards.add(deck.drawCard());
+                }
             }
-            playerValue = getHandValue(playerHands.get(playerTurn.getName()));
-            dealerValue = getHandValue(dealerCards);
-        }else if(action.equals("stand")) {
-            while (getHandValue(dealerCards) < 17) {
-                dealerCards.add(deck.drawCard());
+            if(dealerValue > 21 || (playerValue > dealerValue)&&(playerValue <= 21)){
+                result = "win";
+                prize = currentBets.get(playerTurn.getName())*2;
+                playerTurn.getUserInstance().addMoney(prize);
+                playerTurn.sendMessage(mg.updateMoney(prize).toString());
+            }else if(playerValue==dealerValue){
+                result = "push";
+                prize = currentBets.get(playerTurn.getName());
+                playerTurn.getUserInstance().addMoney(prize);
+                playerTurn.sendMessage(mg.updateMoney(prize).toString());
+            }else{
+                result = "lose";
+                prize = 0;
             }
+            playerAct.set(true);
+            playerTurn.sendMessage(mg.gameResult(prize, result, playerHands.get(playerTurn.getName()), dealerCards, room.getGameId()).toString());
+        } catch(Exception e){
+            e.printStackTrace();
         }
-        if(dealerValue > 21 || (playerValue > dealerValue)&&(playerValue <= 21)){
-            result = "win";
-            prize = currentBets.get(playerTurn.getName())*2;
-            playerTurn.getUserInstance().addMoney(prize);
-            playerTurn.sendMessage(mg.updateMoney(prize).toString());
-        }else if(playerValue==dealerValue){
-            result = "push";
-            prize = currentBets.get(playerTurn.getName());
-            playerTurn.getUserInstance().addMoney(prize);
-            playerTurn.sendMessage(mg.updateMoney(prize).toString());
-        }else{
-            result = "lose";
-            prize = 0;
-        }
-        playerAct.set(true);
-        playerTurn.sendMessage(mg.gameResult(prize, result, playerHands.get(playerTurn.getName()), dealerCards, room.getGameId()).toString());
+
     }
 
     private void waitForAct(List<client> players, Map<String, Boolean> activePlayers){
-        for(client player : players){
-            if(!activePlayers.get(player.getName())) continue;
-            playerTurn = player;
-            System.out.println(playerTurn.getName());
-            player.sendMessage(mg.errorMessage("your turn!").toString());
-            this.counter = new CountDownLatch(1);
-            ScheduledFuture<?> future = timerExecutor.scheduleAtFixedRate(()->{//비동기로 진행
-                if(roundTime > 0 && !playerAct.get()){
-                    room.broadcastTimer(roundTime, room.getGameId());
-                    roundTime-=2;
-                }else{
-                    if(roundTime<=0) handleTimeouts(player, activePlayers);
-                    roundTime = 30;
-                    playerAct.set(false);
-                    room.broadcastTimer(roundTime, room.getGameId());
-                    counter.countDown();
+        try{
+            for(client player : players){
+                if(!activePlayers.get(player.getName())) continue;
+                playerTurn = player;
+                System.out.println(playerTurn.getName());
+                player.sendMessage(mg.errorMessage("your turn!").toString());
+                this.counter = new CountDownLatch(1);
+                ScheduledFuture<?> future = timerExecutor.scheduleAtFixedRate(()->{//비동기로 진행
+                    if(roundTime > 0 && !playerAct.get() && !players.isEmpty()){
+                        room.broadcastTimer(roundTime, room.getGameId());
+                        roundTime-=2;
+                    }else{
+                        if(roundTime<=0) handleTimeouts(player, activePlayers);
+                        roundTime = 30;
+                        playerAct.set(false);
+                        room.broadcastTimer(roundTime, room.getGameId());
+                        counter.countDown();
+                    }
+                },0,2, TimeUnit.SECONDS);
+                try{
+                    counter.await();//비동기로 진행되는 위 코드에서 countDown 내리면 이게 진행
+                    future.cancel(true);
+                }catch(InterruptedException e){
+                    e.printStackTrace();
                 }
-            },0,2, TimeUnit.SECONDS);
-            try{
-                counter.await();//비동기로 진행되는 위 코드에서 countDown 내리면 이게 진행
-                future.cancel(true);
-            }catch(InterruptedException e){
-                e.printStackTrace();
             }
+        }catch(Exception e){
+            e.printStackTrace();
         }
     }
 }

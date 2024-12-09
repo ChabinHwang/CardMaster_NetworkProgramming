@@ -50,26 +50,4 @@ public class GameCard extends JPanel {
 
         add(buttonPanel, BorderLayout.SOUTH);
     }
-
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Game Menu");
-        frame.setLayout(new FlowLayout());
-
-        // 블랙잭 카드
-//        GameCard blackjackCard = new GameCard("BLACKJACK", () -> Blackjack.main(new String[]{}));
-//
-//        // 바카라 카드
-//        GameCard baccaratCard = new GameCard("BACCARAT", () -> Baccarat.main(new String[]{}));
-//
-//        // 카지노 워 카드
-//        GameCard casinowarCard = new GameCard("CASINO WAR", () -> Baccarat.main(new String[]{}));
-////        // 카드 추가
-//        frame.add(blackjackCard);
-//        frame.add(baccaratCard);
-//        frame.add(casinowarCard);
-
-        frame.setSize(600, 400);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-    }
 }

@@ -24,6 +24,7 @@ public class Casinowar extends JPanel {
     public JButton warButton;
     public JButton surrenderButton;
     public JButton startButton;
+    public JButton quitButton;
     public JPanel balancePanel;
     public JLabel balanceLabel;
     public JPanel chatPanel;
@@ -75,6 +76,7 @@ public class Casinowar extends JPanel {
         warButton = new JButton("WAR");
         surrenderButton = new JButton("SURRENDER");
         startButton = new JButton("시작하기");
+        quitButton = new JButton("나가기");
         warButton.setEnabled(false); // 기본적으로 비활성화
         actionPanel.add(new JLabel("배팅 금액: "));
         actionPanel.add(betField);
@@ -82,6 +84,7 @@ public class Casinowar extends JPanel {
         actionPanel.add(warButton);
         actionPanel.add(surrenderButton);
         actionPanel.add(startButton);
+        actionPanel.add(quitButton);
         buttonPanel.add(actionPanel, BorderLayout.CENTER);
 
         // 잔액 표시 (오른쪽)

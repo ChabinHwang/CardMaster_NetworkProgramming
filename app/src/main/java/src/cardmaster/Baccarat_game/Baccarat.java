@@ -21,6 +21,7 @@ public class Baccarat extends JPanel {
     public JPanel betPanel;
     public JTextField betField;
     public JButton betButton;
+    public JButton quitButton;
     public JButton startButton;
 
     // 베팅 옵션 버튼
@@ -84,6 +85,7 @@ public class Baccarat extends JPanel {
         betField = new JTextField(5);
         betButton = new JButton("배팅하기");
         startButton = new JButton("시작하기");
+        quitButton = new JButton("나가기");
 
         // 베팅 옵션 버튼
         playerBet = new JRadioButton("Player");
@@ -102,6 +104,7 @@ public class Baccarat extends JPanel {
         betPanel.add(bankerBet);
         betPanel.add(tieBet);
         betPanel.add(startButton);
+        betPanel.add(quitButton);
 //        betPanel.add(startButton); // 게임 시작 버튼 추가
 
         // 버튼 패널에 배팅 패널 추가

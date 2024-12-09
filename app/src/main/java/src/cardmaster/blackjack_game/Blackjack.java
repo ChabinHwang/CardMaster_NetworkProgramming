@@ -5,14 +5,9 @@ import src.cardmaster.chat.ChatPanel;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Collections;
 
 
 public class Blackjack extends JPanel {
-    private int initialBalance = 100; // 기본 잔액
-    private String id="chabin";// 유저 id
-    private static Timer countdownTimer; // Timer를 클래스 필드로 선언
-    private static int[] roundTime = {30}; // 초기 시간을 30초로 설정
 
     // 전역 변수로 버튼 선언
     public JButton standButton;
@@ -29,24 +24,13 @@ public class Blackjack extends JPanel {
     public JButton betButton;
     public JButton hitButton;
     public JButton startButton;
+    public JButton quitButton;
     public JPanel balancePanel;
     public JLabel balanceLabel;
     public JPanel chatPanel;
 
     public Blackjack(){
-        // 초기 잔액
-        int[] balance = {100}; // 플레이어 잔액
-        int[] betAmount = {0}; // 배팅 금액
-        boolean[] gameActive = {true}; // 게임 상태
 
-        // 카드 덱 생성
-        ArrayList<String> deck = createDeck();
-
-        // 딜러와 플레이어 카드
-        ArrayList<String> dealerCards = new ArrayList<>();
-        ArrayList<String> playerCards = new ArrayList<>();
-
-        // JFrame 생성
         frame = new JPanel();
         frame.setSize(800, 600);
         frame.setLayout(new BorderLayout());
@@ -93,17 +77,19 @@ public class Blackjack extends JPanel {
         standButton = new JButton("스탠드"); // 버튼을 전역으로 설정
         hitButton = new JButton("추가 카드 받기");
         startButton = new JButton("시작하기");
+        quitButton = new JButton("나가기");
         actionPanel.add(new JLabel("배팅 금액: "));
         actionPanel.add(betField);
         actionPanel.add(betButton);
         actionPanel.add(hitButton);
         actionPanel.add(standButton); // 버튼 추가
         actionPanel.add(startButton);
+        actionPanel.add(quitButton);
         buttonPanel.add(actionPanel, BorderLayout.CENTER);
 
         // 잔액 표시 (오른쪽)
         balancePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        balanceLabel = new JLabel("잔액: " + balance[0]);
+        balanceLabel = new JLabel("잔액: ");
         balancePanel.add(balanceLabel);
         buttonPanel.add(balancePanel, BorderLayout.EAST);
 
@@ -115,152 +101,6 @@ public class Blackjack extends JPanel {
         buttonPanel.add(chatPanel, BorderLayout.SOUTH);
         add(frame);
         setVisible(true);
-    }
-
-    public void init(int money, String id) {
-
-        // 배팅 버튼 액션
-//        betButton.addActionListener(e -> {
-//            if (!gameActive[0]) return;
-//
-//            try {
-//                int bet = Integer.parseInt(betField.getText());
-//                if (bet > balance[0]) {
-//                    JOptionPane.showMessageDialog(frame, "잔액이 부족합니다.", "오류", JOptionPane.ERROR_MESSAGE);
-//                } else if (bet <= 0) {
-//                    JOptionPane.showMessageDialog(frame, "유효한 금액을 입력하세요.", "오류", JOptionPane.ERROR_MESSAGE);
-//                } else {
-//                    betAmount[0] = bet;
-//                    balance[0] -= bet;
-//                    balanceLabel.setText("잔액: " + balance[0]);
-//
-//                    // 카드 나눠주기
-//                    dealerCards.add(deck.remove(0)); // 딜러 카드 (공개)
-//                    dealerCards.add(deck.remove(0)); // 딜러 카드 (비공개)
-//                    playerCards.add(deck.remove(0)); // 플레이어 카드
-//                    playerCards.add(deck.remove(0)); // 플레이어 카드
-//
-//                    updateDealerPanel(dealerPanel, dealerCards, false); // 딜러 카드 중 첫 번째만 공개
-//                    updatePlayerPanel(playerPanel, playerCards);
-//                }
-//            } catch (NumberFormatException ex) {
-//                JOptionPane.showMessageDialog(frame, "숫자를 입력하세요.", "오류", JOptionPane.ERROR_MESSAGE);
-//            }
-//        });
-//
-//        // "추가 카드 받기" 버튼 액션
-//        hitButton.addActionListener(e -> {
-//            if (!gameActive[0]) return;
-//
-//            // 덱에서 카드 한 장 가져오기
-//            if (!deck.isEmpty()) {
-//                String newCard = deck.remove(0);
-//                playerCards.add(newCard); // 플레이어 카드 리스트에 추가
-//                updatePlayerPanel(playerPanel, playerCards); // UI 갱신
-//            } else {
-//                JOptionPane.showMessageDialog(frame, "덱에 카드가 없습니다.", "알림", JOptionPane.WARNING_MESSAGE);
-//            }
-//
-//            // 플레이어 점수 계산
-//            int playerScore = calculateScore(playerCards);
-//            if (playerScore > 21) {
-//                JOptionPane.showMessageDialog(frame, "버스트! 딜러 승리!", "패배", JOptionPane.INFORMATION_MESSAGE);
-//                gameActive[0] = false;
-//            }
-//        });
-//
-//        // "스탠드" 버튼 액션
-//        standButton.addActionListener(e -> {
-//            if (!gameActive[0]) return;
-//
-//            // 딜러의 숨겨진 카드 공개
-//            updateDealerPanel(dealerPanel, dealerCards, true);
-//
-//            // 딜러 추가 카드 받기
-//            while (calculateScore(dealerCards) < 17) {
-//                dealerCards.add(deck.remove(0));
-//                updateDealerPanel(dealerPanel, dealerCards, true);
-//            }
-//
-//            // 점수 계산
-//            int playerScore = calculateScore(playerCards);
-//            int dealerScore = calculateScore(dealerCards);
-//
-//            String result;
-//            if (playerScore > 21) {
-//                result = "버스트! 딜러 승리!";
-//            } else if (dealerScore > 21 || playerScore > dealerScore) {
-//                balance[0] += betAmount[0] * 2;
-//                result = "플레이어 승리! 배팅 금액의 두 배를 획득했습니다!";
-//            } else if (playerScore == dealerScore) {
-//                balance[0] += betAmount[0];
-//                result = "무승부! 배팅 금액이 반환되었습니다.";
-//            } else {
-//                result = "딜러 승리!";
-//            }
-//
-//            // 결과 출력
-//            balanceLabel.setText("잔액: " + balance[0]);
-//            JOptionPane.showMessageDialog(frame, result, "결과", JOptionPane.INFORMATION_MESSAGE);
-//
-//            // 게임 상태 종료
-//            gameActive[0] = false;
-//        });
-//
-//        // "채팅하기" 버튼 이벤트
-//        String finalId = id;
-////        chatButton.addActionListener(e -> {
-////            // ChatApp 실행
-////            SwingUtilities.invokeLater(() -> {
-////                ChatApp.main(new String[]{finalId}); // ChatApp 실행
-////            });
-////        });
-//        // 타이머 서버 응답 읽기
-//        roundTime[0] = 0;
-//        StringBuilder responseBuilder = new StringBuilder();
-//        String line;
-//        timerLabel.setText(String.valueOf(roundTime[0]));
-//        startCountdownTimer(timerLabel); // 타이머 시작
-//
-//        frame.setVisible(true);//게임 프레임 보여지게 하기
-
-    }
-    //타이머 카운트 다운 표시->종료시 메뉴화면으로 돌아가기
-    private static void startCountdownTimer(JLabel timerLabel) {
-        if (countdownTimer != null && countdownTimer.isRunning()) {
-            countdownTimer.stop(); // 이전 타이머가 실행 중이라면 멈추기
-        }
-
-        countdownTimer = new javax.swing.Timer(1000, e1 -> {
-            if (roundTime[0] > 0) {
-                roundTime[0]--;
-                timerLabel.setText(String.valueOf(roundTime[0]));
-            } else {
-                // 타이머 종료 시 메시지 표시
-                if (roundTime[0] == 0) {
-                    int option = JOptionPane.showOptionDialog(null, "타이머가 종료되었습니다.", "알림", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, new Object[]{"확인"}, null);
-                    if (option == 0) {
-                        System.exit(0); // 게임 종료 (JFrame 닫기)
-                    }
-                }
-                countdownTimer.stop(); // 타이머 멈추기
-                //시간 아웃 요청이 오면, 금액변화 저장. MenuFrame 만들기
-            }
-        });
-        countdownTimer.start();
-    }
-
-    private static ArrayList<String> createDeck() {
-        String[] suits = {"♠", "♥", "♦", "♣"};
-        String[] values = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
-        ArrayList<String> deck = new ArrayList<>();
-        for (String suit : suits) {
-            for (String value : values) {
-                deck.add(value + suit);
-            }
-        }
-        Collections.shuffle(deck);
-        return deck;
     }
 
 

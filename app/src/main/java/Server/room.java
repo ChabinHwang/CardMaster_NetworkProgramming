@@ -31,6 +31,8 @@ public class room extends Thread{
         return this.roomName;
     }
 
+    public Map<String, Boolean> getActivePlayers(){return this.activePlayers;}
+
     public boolean join(client client){
         if(numberOfPlayer() == 0) {
             leader = client;
@@ -52,16 +54,28 @@ public class room extends Thread{
     }
 
     public void leave(client player){
+        int nextPlayerIndex = -1;
+        for(int i=0; i<players.size(); i++){
+            if(player==players.get(i)){
+                nextPlayerIndex = i+1;
+                break;
+            }
+        }
+        if(nextPlayerIndex!=-1&&players.size()>nextPlayerIndex){
+            dealer.changePlayerTurn(players.get(nextPlayerIndex));
+        }
         players.remove(player);
         activePlayers.remove(player.getName());
-        if(player==leader){
+        if(player==leader&&!players.isEmpty()){
             leader = players.getFirst();
         }
     }
 
     public void broadcast(String message){
-        for(client client : players){
-            client.sendMessage(message);
+        if(!players.isEmpty()){
+            for(client client : players){
+                client.sendMessage(message);
+            }
         }
     }
 
@@ -75,6 +89,10 @@ public class room extends Thread{
 
     public void run(){
         while(true){
+            activePlayers.clear();
+            for(client player : players){
+                activePlayers.put(player.getName(),true);
+            }
             if(gameId==0){
                 dealer = new blackJackDealer(this, mg);
             }else if(gameId==1){
@@ -159,11 +177,8 @@ public class room extends Thread{
                     casinodealer.resolveWar(gotoWar, additionalBet);
                     break;
                 case "leave":
-                    if(!gameInProgress.get()) {
-                        player.sendMessage(mg.errorMessage("not playing time").toString());
-                        return;
-                    }
                     leave(player);
+                    player.sendMessage(mg.leaveRoomResponse(player.getUserInstance()).toString());
                     break;
                 case "message":
                     for(client client : players){

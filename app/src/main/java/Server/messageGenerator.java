@@ -53,6 +53,15 @@ public class messageGenerator {
         response.put("data", data);
         return response;
     }
+    public JSONObject leaveRoomResponse(User user){
+        response = new JSONObject();
+        data = new JSONObject();
+        response.put("response", "leaveRoomResponse");
+        data.put("name", user.getId())
+                .put("money", user.getMoney());
+        response.put("data", data);
+        return response;
+    }
     public JSONObject sendRoomState(room room, int gameId){
         response = new JSONObject();
         data = new JSONObject();

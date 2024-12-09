@@ -85,6 +85,13 @@ public class ClientUI extends JFrame {
         casinowar.warButton.addActionListener(bcwe);
         ActionListener bcsh = new BtCasinoWarSurrenderHandler(this);
         casinowar.surrenderButton.addActionListener(bcsh);
+
+        ActionListener bbqh = new BtBaccaratQuitHandler(this);
+        baccarat.quitButton.addActionListener(bbqh);
+        ActionListener bbjqh = new BtBlackJackQuitHandler(this);
+        blackjack.quitButton.addActionListener(bbjqh);
+        ActionListener bcwqh = new BtCasinoWarQuitHandler(this);
+        casinowar.quitButton.addActionListener(bcwqh);
     }
 
     private void setUIcomponent(){
