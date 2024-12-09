@@ -122,6 +122,7 @@ public class baccaratDealer implements dealerI{
                 }
             }
             playerTurn.sendMessage(mg.gameResult(prize, result, playerHands.get(playerTurn.getName()), dealerCards, room.getGameId()).toString());
+            playerAct.set(true);
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -142,7 +143,7 @@ public class baccaratDealer implements dealerI{
                         if(roundTime<=0) handleTimeouts(player, activePlayers);
                         roundTime = 30;
                         playerAct.set(false);
-                        turnChanged.set(true);
+                        turnChanged.set(false);
                         room.broadcastTimer(roundTime, room.getGameId());
                         counter.countDown();
                     }

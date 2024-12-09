@@ -120,6 +120,7 @@ public class blackJackDealer implements dealerI{
                 if(handValue>21){
                     result = "bust";
                     playerTurn.sendMessage(mg.gameResult(0, result, playerHands.get(playerTurn.getName()), dealerCards, room.getGameId()).toString());
+                    playerAct.set(true);
                     return;
                 }
                 playerValue = getHandValue(playerHands.get(playerTurn.getName()));

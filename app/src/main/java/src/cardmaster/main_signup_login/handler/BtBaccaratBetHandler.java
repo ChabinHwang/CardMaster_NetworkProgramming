@@ -22,9 +22,11 @@ public class BtBaccaratBetHandler implements ActionListener {
         }
         if (amount <= 0) {
             JOptionPane.showMessageDialog(cu, "유효한 금액을 입력하세요.", "오류", JOptionPane.ERROR_MESSAGE);
+            return;
         }
         if (!cu.baccarat.playerBet.isSelected() && !cu.baccarat.bankerBet.isSelected() && !cu.baccarat.tieBet.isSelected()) {
             JOptionPane.showMessageDialog(cu, "베팅할 대상을 선택하세요.", "오류", JOptionPane.ERROR_MESSAGE);
+            return;
         } else {
             String bet = "";
             if (cu.baccarat.playerBet.isSelected()) bet = "Player";

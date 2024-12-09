@@ -22,6 +22,7 @@ public class BtCasinoWarBetHandler implements ActionListener {
         }
         if (amount <= 0) {
             JOptionPane.showMessageDialog(cu, "유효한 금액을 입력하세요.", "오류", JOptionPane.ERROR_MESSAGE);
+            return;
         }
         cu.net.sendBetRequest(amount, "", 1);
     }
