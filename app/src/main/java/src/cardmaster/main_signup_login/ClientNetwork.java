@@ -207,6 +207,7 @@ public class ClientNetwork extends Thread{
                         money = responseData.getInt("money");
                         cu.setLocationRelativeTo(null);
                         cu.setSize(800, 500);
+                        this.money = money;
                         cu.menuFrame.welcomePanel.welcomeLabel.setText("<html><b>"+name+"</b> 님, 환영합니다.</html>");
                         cu.menuFrame.welcomePanel.pointsLabel.setText("잔액 : "+money+" points");
                         cu.setContentPane(cu.menuFrame);

@@ -17,6 +17,7 @@ public class blackJackDealer implements dealerI{
     private final Map<String, Integer> currentBets = new ConcurrentHashMap<>();
     // 현재 턴에서 플레이어가 행동했는지 여부를 나타내는 플래그.
     private final AtomicBoolean playerAct = new AtomicBoolean(false);
+    private final AtomicBoolean turnChanged = new AtomicBoolean(false);
     private volatile client playerTurn;
     private ScheduledExecutorService timerExecutor;
     // roundTime: 한 턴의 제한 시간(기본값: 30초).
@@ -34,6 +35,7 @@ public class blackJackDealer implements dealerI{
     }
 
     public void changePlayerTurn(client player){
+        turnChanged.set(true);
         this.playerTurn = player;
     }
 
@@ -158,13 +160,14 @@ public class blackJackDealer implements dealerI{
                 player.sendMessage(mg.errorMessage("your turn!").toString());
                 this.counter = new CountDownLatch(1);
                 ScheduledFuture<?> future = timerExecutor.scheduleAtFixedRate(()->{//비동기로 진행
-                    if(roundTime > 0 && !playerAct.get() && !players.isEmpty()){
+                    if(roundTime > 0 && !playerAct.get() && !players.isEmpty() && !turnChanged.get()){
                         room.broadcastTimer(roundTime, room.getGameId());
                         roundTime-=2;
                     }else{
                         if(roundTime<=0) handleTimeouts(player, activePlayers);
                         roundTime = 30;
                         playerAct.set(false);
+                        turnChanged.set(false);
                         room.broadcastTimer(roundTime, room.getGameId());
                         counter.countDown();
                     }

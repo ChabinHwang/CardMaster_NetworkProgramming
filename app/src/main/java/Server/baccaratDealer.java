@@ -15,6 +15,7 @@ public class baccaratDealer implements dealerI{
     private final Map<String, String> betting = new ConcurrentHashMap<>();
     private final Map<String, Integer> currentBets = new ConcurrentHashMap<>();
     private final AtomicBoolean playerAct = new AtomicBoolean(false);
+    private final AtomicBoolean turnChanged = new AtomicBoolean(false);
     private volatile client playerTurn;
     private ScheduledExecutorService timerExecutor;
     private int roundTime = 30;
@@ -31,6 +32,7 @@ public class baccaratDealer implements dealerI{
     }
 
     public void changePlayerTurn(client player){
+        turnChanged.set(true);
         this.playerTurn = player;
     }
 
@@ -133,13 +135,14 @@ public class baccaratDealer implements dealerI{
                 player.sendMessage(mg.errorMessage("your turn!").toString());
                 this.counter = new CountDownLatch(1);
                 ScheduledFuture<?> future = timerExecutor.scheduleAtFixedRate(()->{
-                    if(roundTime > 0 && !playerAct.get() && !players.isEmpty()){
+                    if(roundTime > 0 && !playerAct.get() && !players.isEmpty() && !turnChanged.get()){
                         room.broadcastTimer(roundTime, room.getGameId());
                         roundTime--;
                     }else{
                         if(roundTime<=0) handleTimeouts(player, activePlayers);
                         roundTime = 30;
                         playerAct.set(false);
+                        turnChanged.set(true);
                         room.broadcastTimer(roundTime, room.getGameId());
                         counter.countDown();
                     }
